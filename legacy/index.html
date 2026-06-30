@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="AURELIA — Haute joaillerie atelier and manufactory. Handcrafted luxury jewelry since 1892.">
+  <title>AURELIA — Atelier & Manufactory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/desktop.css" media="(min-width: 1024px)">
+  <link rel="stylesheet" href="css/mobile.css" media="(max-width: 1023px)">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ═══════════════════ DESKTOP EXPERIENCE ═══════════════════ -->
+  <div id="desktop-experience" class="experience desktop-only" aria-hidden="false">
+    <nav class="desk-nav">
+      <a href="#" class="logo">AURELIA</a>
+      <ul class="desk-nav-links">
+        <li><a href="#d-heritage" data-section="heritage">Heritage</a></li>
+        <li><a href="#d-collections" data-section="collections">Collections</a></li>
+        <li><a href="#d-atelier" data-section="atelier">Atelier</a></li>
+        <li><a href="#d-contact" data-section="contact">Visit</a></li>
+      </ul>
+      <span class="desk-nav-tag">Est. 1892</span>
+    </nav>
+
+    <div class="desk-progress" aria-hidden="true">
+      <div class="desk-progress-bar"></div>
+    </div>
+
+    <main class="desk-scroll-container">
+      <!-- Chapter 1: Hero -->
+      <section class="desk-panel desk-hero" data-chapter="0">
+        <div class="desk-hero-bg"></div>
+        <div class="desk-hero-content">
+          <p class="eyebrow reveal">Haute Joaillerie · Manufactory</p>
+          <h1 class="desk-hero-title reveal">
+            <span class="line">Where Light</span>
+            <span class="line">Becomes Legacy</span>
+          </h1>
+          <p class="desk-hero-sub reveal">Hand-forged in our Geneva atelier. Each piece carries a century of mastery.</p>
+          <div class="desk-hero-cta reveal">
+            <button class="btn-primary" data-scroll="1">Discover Our Story</button>
+          </div>
+        </div>
+        <div class="desk-hero-visual reveal">
+          <div class="jewel-showcase">
+            <div class="jewel-ring"></div>
+            <div class="jewel-glow"></div>
+          </div>
+        </div>
+        <div class="scroll-hint">
+          <span>Scroll</span>
+          <div class="scroll-line"></div>
+        </div>
+      </section>
+
+      <!-- Chapter 2: Heritage -->
+      <section class="desk-panel desk-heritage" id="d-heritage" data-chapter="1">
+        <div class="desk-panel-inner">
+          <div class="desk-split">
+            <div class="desk-split-text">
+              <span class="chapter-num">01</span>
+              <h2 class="section-title reveal">A Legacy<br><em>of Light</em></h2>
+              <p class="body-text reveal">Founded in 1892 by master goldsmith Émile Aurelia, our manufactory has adorned royalty, visionaries, and those who understand that true luxury is never rushed.</p>
+              <p class="body-text reveal">Three generations of artisans. One unwavering devotion to perfection.</p>
+              <div class="stat-row reveal">
+                <div class="stat"><span class="stat-num">132</span><span class="stat-label">Years of Craft</span></div>
+                <div class="stat"><span class="stat-num">47</span><span class="stat-label">Master Artisans</span></div>
+                <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Hours Per Piece</span></div>
+              </div>
+            </div>
+            <div class="desk-split-visual reveal">
+              <div class="heritage-frame">
+                <div class="heritage-image"></div>
+                <div class="heritage-caption">The original atelier, Geneva — 1892</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chapter 3: Collections -->
+      <section class="desk-panel desk-collections" id="d-collections" data-chapter="2">
+        <div class="desk-panel-inner">
+          <div class="collections-header reveal">
+            <span class="chapter-num">02</span>
+            <h2 class="section-title">Signature<br><em>Collections</em></h2>
+          </div>
+          <div class="collections-track">
+            <article class="collection-card reveal" data-index="0">
+              <div class="card-visual card-lumiere"></div>
+              <div class="card-info">
+                <h3>Lumière</h3>
+                <p>Diamond cascades inspired by morning light through Alpine peaks.</p>
+                <span class="card-price">From CHF 24,500</span>
+              </div>
+            </article>
+            <article class="collection-card reveal" data-index="1">
+              <div class="card-visual card-velours"></div>
+              <div class="card-info">
+                <h3>Velours Noir</h3>
+                <p>Onyx and white gold. The elegance of shadow and silence.</p>
+                <span class="card-price">From CHF 18,200</span>
+              </div>
+            </article>
+            <article class="collection-card reveal" data-index="2">
+              <div class="card-visual card-aube"></div>
+              <div class="card-info">
+                <h3>Aube Rosée</h3>
+                <p>Rose gold and pink sapphires. Dawn captured in precious metal.</p>
+                <span class="card-price">From CHF 31,800</span>
+              </div>
+            </article>
+            <article class="collection-card reveal" data-index="3">
+              <div class="card-visual card-eternal"></div>
+              <div class="card-info">
+                <h3>Éternel</h3>
+                <p>Bridal masterpieces. Vows written in platinum and fire.</p>
+                <span class="card-price">Bespoke</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chapter 4: Atelier Process -->
+      <section class="desk-panel desk-atelier" id="d-atelier" data-chapter="3">
+        <div class="desk-panel-inner">
+          <div class="atelier-intro reveal">
+            <span class="chapter-num">03</span>
+            <h2 class="section-title">The <em>Atelier</em></h2>
+            <p class="body-text">Every Aurelia creation passes through twelve stages of human hands. No machines replace the artisan — only amplify their vision.</p>
+          </div>
+          <div class="process-timeline">
+            <div class="process-step reveal" data-step="0">
+              <span class="step-num">I</span>
+              <h4>Design</h4>
+              <p>Sketches born from conversation. Your story becomes form.</p>
+            </div>
+            <div class="process-line"></div>
+            <div class="process-step reveal" data-step="1">
+              <span class="step-num">II</span>
+              <h4>Casting</h4>
+              <p>Lost-wax technique. Metal poured at 1,064°C precision.</p>
+            </div>
+            <div class="process-line"></div>
+            <div class="process-step reveal" data-step="2">
+              <span class="step-num">III</span>
+              <h4>Setting</h4>
+              <p>Each stone placed by hand under 40× magnification.</p>
+            </div>
+            <div class="process-line"></div>
+            <div class="process-step reveal" data-step="3">
+              <span class="step-num">IV</span>
+              <h4>Polish</h4>
+              <p>Seven stages of burnishing until light itself bends.</p>
+            </div>
+          </div>
+          <div class="atelier-visual reveal">
+            <div class="atelier-workshop"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chapter 5: Contact -->
+      <section class="desk-panel desk-contact" id="d-contact" data-chapter="4">
+        <div class="desk-panel-inner">
+          <div class="contact-grid">
+            <div class="contact-text reveal">
+              <span class="chapter-num">04</span>
+              <h2 class="section-title">Visit the<br><em>Manufactory</em></h2>
+              <p class="body-text">Private appointments available by invitation. Experience the atelier where your piece will be born.</p>
+              <address class="contact-details">
+                <p>Rue du Rhône 42</p>
+                <p>1204 Geneva, Switzerland</p>
+                <p><a href="tel:+41221234567">+41 22 123 45 67</a></p>
+                <p><a href="mailto:concierge@aurelia.ch">concierge@aurelia.ch</a></p>
+              </address>
+              <button class="btn-primary">Request Appointment</button>
+            </div>
+            <div class="contact-visual reveal">
+              <div class="contact-map"></div>
+            </div>
+          </div>
+          <footer class="desk-footer">
+            <span class="logo">AURELIA</span>
+            <p>© 2026 Aurelia Atelier & Manufactory. All rights reserved.</p>
+          </footer>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══════════════════ MOBILE EXPERIENCE ═══════════════════ -->
+  <div id="mobile-experience" class="experience mobile-only">
+    <header class="mob-header">
+      <a href="#" class="logo">AURELIA</a>
+      <button class="mob-menu-btn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <nav class="mob-drawer" aria-hidden="true">
+      <button class="mob-drawer-close" aria-label="Close menu">&times;</button>
+      <ul>
+        <li><a href="#m-hero">Home</a></li>
+        <li><a href="#m-heritage">Heritage</a></li>
+        <li><a href="#m-collections">Collections</a></li>
+        <li><a href="#m-atelier">Atelier</a></li>
+        <li><a href="#m-contact">Visit</a></li>
+      </ul>
+    </nav>
+
+    <div class="mob-progress" aria-hidden="true">
+      <div class="mob-progress-dots">
+        <span data-dot="0"></span>
+        <span data-dot="1"></span>
+        <span data-dot="2"></span>
+        <span data-dot="3"></span>
+        <span data-dot="4"></span>
+      </div>
+    </div>
+
+    <main class="mob-scroll-container">
+      <!-- Chapter 1 -->
+      <section class="mob-chapter mob-hero" id="m-hero" data-chapter="0">
+        <div class="mob-hero-bg"></div>
+        <div class="mob-chapter-content">
+          <p class="eyebrow">Haute Joaillerie</p>
+          <h1>Where Light<br>Becomes <em>Legacy</em></h1>
+          <p class="mob-sub">Hand-forged luxury since 1892</p>
+          <div class="mob-jewel-icon"></div>
+        </div>
+        <div class="mob-swipe-hint">
+          <span>Swipe up</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </div>
+      </section>
+
+      <!-- Chapter 2 -->
+      <section class="mob-chapter mob-heritage" id="m-heritage" data-chapter="1">
+        <div class="mob-chapter-content">
+          <span class="chapter-num">01 — Heritage</span>
+          <h2>A Legacy<br>of <em>Light</em></h2>
+          <div class="mob-heritage-img"></div>
+          <p>Founded in 1892, our Geneva manufactory has adorned royalty and visionaries for over a century.</p>
+          <div class="mob-stats">
+            <div><strong>132</strong><span>Years</span></div>
+            <div><strong>47</strong><span>Artisans</span></div>
+            <div><strong>12</strong><span>Stages</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chapter 3 -->
+      <section class="mob-chapter mob-collections" id="m-collections" data-chapter="2">
+        <div class="mob-chapter-content">
+          <span class="chapter-num">02 — Collections</span>
+          <h2>Signature<br><em>Pieces</em></h2>
+          <div class="mob-carousel">
+            <div class="mob-carousel-track">
+              <div class="mob-slide">
+                <div class="mob-slide-img slide-lumiere"></div>
+                <h3>Lumière</h3>
+                <p>Diamond cascades · From CHF 24,500</p>
+              </div>
+              <div class="mob-slide">
+                <div class="mob-slide-img slide-velours"></div>
+                <h3>Velours Noir</h3>
+                <p>Onyx & white gold · From CHF 18,200</p>
+              </div>
+              <div class="mob-slide">
+                <div class="mob-slide-img slide-aube"></div>
+                <h3>Aube Rosée</h3>
+                <p>Rose sapphires · From CHF 31,800</p>
+              </div>
+              <div class="mob-slide">
+                <div class="mob-slide-img slide-eternal"></div>
+                <h3>Éternel</h3>
+                <p>Bridal masterpieces · Bespoke</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chapter 4 -->
+      <section class="mob-chapter mob-atelier" id="m-atelier" data-chapter="3">
+        <div class="mob-chapter-content">
+          <span class="chapter-num">03 — Atelier</span>
+          <h2>Crafted by<br><em>Hand</em></h2>
+          <div class="mob-process-list">
+            <div class="mob-process-item">
+              <span>I</span>
+              <div><h4>Design</h4><p>Your story becomes form</p></div>
+            </div>
+            <div class="mob-process-item">
+              <span>II</span>
+              <div><h4>Casting</h4><p>Lost-wax at 1,064°C</p></div>
+            </div>
+            <div class="mob-process-item">
+              <span>III</span>
+              <div><h4>Setting</h4><p>Stones placed by hand</p></div>
+            </div>
+            <div class="mob-process-item">
+              <span>IV</span>
+              <div><h4>Polish</h4><p>Until light itself bends</p></div>
+            </div>
+          </div>
+          <div class="mob-atelier-img"></div>
+        </div>
+      </section>
+
+      <!-- Chapter 5 -->
+      <section class="mob-chapter mob-contact" id="m-contact" data-chapter="4">
+        <div class="mob-chapter-content">
+          <span class="chapter-num">04 — Visit</span>
+          <h2>The<br><em>Manufactory</em></h2>
+          <p>Private appointments by invitation.</p>
+          <address class="mob-contact-info">
+            <p>Rue du Rhône 42</p>
+            <p>1204 Geneva, Switzerland</p>
+            <p><a href="tel:+41221234567">+41 22 123 45 67</a></p>
+            <p><a href="mailto:concierge@aurelia.ch">concierge@aurelia.ch</a></p>
+          </address>
+          <button class="btn-primary btn-full">Request Appointment</button>
+          <footer class="mob-footer">
+            <span class="logo">AURELIA</span>
+            <p>© 2026 Aurelia Atelier</p>
+          </footer>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/desktop.js" defer></script>
+  <script src="js/mobile.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>

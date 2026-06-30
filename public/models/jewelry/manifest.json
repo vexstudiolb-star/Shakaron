@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "license": "CC0 — Shakaron Jewelry. Edit freely in Blender or any 3D tool.",
+  "folder": "/models/jewelry/",
+  "parts": [
+    "chain-box-link.glb",
+    "chain-box-link.obj",
+    "chain-cable-link.glb",
+    "chain-cable-link.obj",
+    "chain-curb-link.glb",
+    "chain-curb-link.obj",
+    "chain-necklace.glb",
+    "chain-necklace.obj",
+    "chain-rope-link.glb",
+    "chain-rope-link.obj",
+    "charm-gem.glb",
+    "charm-gem.obj",
+    "connector-clasp.glb",
+    "connector-clasp.obj",
+    "pendant-bar.glb",
+    "pendant-bar.obj",
+    "pendant-disc.glb",
+    "pendant-disc.obj",
+    "pendant-heart.glb",
+    "pendant-heart.obj",
+    "pendant-teardrop.glb",
+    "pendant-teardrop.obj",
+    "ring-band.glb",
+    "ring-band.obj"
+  ]
+}

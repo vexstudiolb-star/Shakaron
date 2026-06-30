@@ -1,0 +1,485 @@
+/* ═══════════════════════════════════════════════════════════
+   AURELIA — Desktop Scrollytelling Experience
+   Horizontal pinned narrative · 1024px+
+   ═══════════════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  body {
+    overflow: hidden;
+    height: 100vh;
+  }
+}
+
+#desktop-experience {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Navigation */
+.desk-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3rem;
+  height: var(--nav-height);
+  background: linear-gradient(to bottom, rgba(8,8,8,0.9) 0%, transparent 100%);
+  transition: background 0.6s var(--ease-luxury);
+}
+
+.desk-nav.scrolled {
+  background: rgba(8, 8, 8, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(201, 169, 98, 0.1);
+}
+
+.desk-nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.desk-nav-links a {
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+  transition: color 0.4s var(--ease-luxury);
+  position: relative;
+}
+
+.desk-nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s var(--ease-luxury);
+}
+
+.desk-nav-links a:hover,
+.desk-nav-links a.active {
+  color: var(--ivory);
+}
+
+.desk-nav-links a:hover::after,
+.desk-nav-links a.active::after {
+  width: 100%;
+}
+
+.desk-nav-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  opacity: 0.7;
+}
+
+/* Progress bar */
+.desk-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 100;
+  background: rgba(201, 169, 98, 0.1);
+}
+
+.desk-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  transition: width 0.1s linear;
+}
+
+/* Scroll container — horizontal storytelling */
+.desk-scroll-container {
+  display: flex;
+  height: 100vh;
+  width: max-content;
+  will-change: transform;
+}
+
+.desk-panel {
+  width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.desk-panel-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--nav-height) 4rem 4rem;
+}
+
+/* ─── Hero Panel ─── */
+.desk-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 4rem;
+  gap: 4rem;
+}
+
+.desk-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 50%, rgba(201, 169, 98, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(201, 169, 98, 0.05) 0%, transparent 40%),
+    var(--black);
+  z-index: 0;
+}
+
+.desk-hero-content {
+  position: relative;
+  z-index: 2;
+  padding-left: 2rem;
+}
+
+.desk-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, 6rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+.desk-hero-title .line {
+  display: block;
+  overflow: hidden;
+}
+
+.desk-hero-sub {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--ivory-muted);
+  max-width: 38ch;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+}
+
+.desk-hero-visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.jewel-showcase {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jewel-ring {
+  width: 280px;
+  height: 280px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.jewel-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,98,0.2) 0%, transparent 70%);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(3deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10;
+  animation: fade-hint 2s ease-in-out infinite;
+}
+
+.scroll-hint span {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scroll-line 2s ease-in-out infinite;
+}
+
+@keyframes fade-hint {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes scroll-line {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ─── Heritage Panel ─── */
+.desk-heritage {
+  background: var(--black-soft);
+}
+
+.desk-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+}
+
+.desk-split-visual {
+  position: relative;
+}
+
+.heritage-frame {
+  position: relative;
+}
+
+.heritage-image {
+  width: 100%;
+  aspect-ratio: 4/5;
+  border: 1px solid rgba(201, 169, 98, 0.2);
+}
+
+.heritage-caption {
+  position: absolute;
+  bottom: -2rem;
+  right: -2rem;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--ivory-muted);
+  letter-spacing: 0.05em;
+}
+
+.stat-row {
+  display: flex;
+  gap: 3rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(201, 169, 98, 0.15);
+}
+
+.stat-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+}
+
+/* ─── Collections Panel ─── */
+.desk-collections {
+  background:
+    radial-gradient(ellipse at 0% 100%, rgba(201,169,98,0.06) 0%, transparent 50%),
+    var(--black);
+}
+
+.collections-header {
+  margin-bottom: 3rem;
+}
+
+.collections-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.collection-card {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.6s var(--ease-luxury);
+}
+
+.collection-card:hover {
+  transform: translateY(-8px);
+}
+
+.card-info {
+  padding: 1.25rem 0;
+}
+
+.card-info h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+.card-info p {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--ivory-muted);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.card-price {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ─── Atelier Panel ─── */
+.desk-atelier {
+  background: var(--charcoal);
+}
+
+.atelier-intro {
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+.process-timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 3rem;
+}
+
+.process-step {
+  flex: 1;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(201, 169, 98, 0.3);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.process-step h4 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+.process-step p {
+  font-size: 0.75rem;
+  color: var(--ivory-muted);
+  line-height: 1.6;
+}
+
+.process-line {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+
+.atelier-workshop {
+  width: 100%;
+  height: 200px;
+  border: 1px solid rgba(201, 169, 98, 0.1);
+}
+
+/* ─── Contact Panel ─── */
+.desk-contact {
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(201,169,98,0.08) 0%, transparent 50%),
+    var(--black);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.contact-details {
+  margin: 2rem 0;
+  line-height: 2;
+}
+
+.contact-details a {
+  color: var(--gold);
+  transition: color 0.3s;
+}
+
+.contact-details a:hover {
+  color: var(--gold-light);
+}
+
+.contact-map {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.desk-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(201, 169, 98, 0.1);
+}
+
+.desk-footer p {
+  font-size: 0.7rem;
+  color: var(--ivory-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Staggered reveal delays */
+.reveal[data-delay="1"] { transition-delay: 0.1s; }
+.reveal[data-delay="2"] { transition-delay: 0.2s; }
+.reveal[data-delay="3"] { transition-delay: 0.3s; }
+.reveal[data-delay="4"] { transition-delay: 0.4s; }
