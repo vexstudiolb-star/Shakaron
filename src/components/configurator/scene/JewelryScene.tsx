@@ -1,74 +1,53 @@
 "use client";
 
-import { Suspense } from "react";
+import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows } from "@react-three/drei";
-import { useConfigurator } from "@/contexts/ConfiguratorContext";
+import * as THREE from "three";
 import { useLocale } from "@/contexts/LocaleContext";
-import { CanvasDropZone } from "../CanvasDropZone";
-import { DesignAssembly } from "./JewelryPartModel";
-import { SceneGround } from "./SceneEnvironment";
-import { SceneControls } from "./SceneControls";
-
-function SceneLoader() {
-  return (
-    <mesh>
-      <boxGeometry args={[0.4, 0.4, 0.4]} />
-      <meshStandardMaterial color="#c4a35a" wireframe />
-    </mesh>
-  );
-}
-
-function SceneContent() {
-  const { selectPart } = useConfigurator();
-
-  return (
-    <>
-      <color attach="background" args={["#0c0c0c"]} />
-      <fog attach="fog" args={["#0c0c0c", 4, 12]} />
-
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[4, 6, 3]} intensity={1.4} castShadow />
-      <directionalLight position={[-3, 2, -2]} intensity={0.35} color="#e2d4a8" />
-      <pointLight position={[0, 3, 2]} intensity={0.5} color="#faf8f4" />
-
-      <Suspense fallback={<SceneLoader />}>
-        <group onClick={() => selectPart(null)}>
-          <DesignAssembly />
-        </group>
-        <SceneGround />
-        <ContactShadows
-          position={[0, -0.74, 0]}
-          opacity={0.35}
-          scale={8}
-          blur={2}
-          far={2}
-        />
-      </Suspense>
-
-      <SceneControls />
-    </>
-  );
-}
+import { ConfiguratorErrorBoundary } from "../ConfiguratorErrorBoundary";
+import { JewelryEngineScene } from "./JewelryEngineScene";
 
 export function JewelryScene() {
   const { dict } = useLocale();
-  const { placedParts } = useConfigurator();
-  const isEmpty = placedParts.length === 0;
+  const [mounted, setMounted] = useState(false);
+  const [dpr, setDpr] = useState(1);
+
+  useEffect(() => {
+    setMounted(true);
+    setDpr(Math.min(window.devicePixelRatio, 2));
+  }, []);
 
   return (
-    <div className="relative min-h-[45vh] h-[50vh] w-full overflow-hidden rounded-sm border border-gold/10 bg-charcoal-soft lg:h-full lg:min-h-[480px]">
-      <CanvasDropZone isEmpty={isEmpty} emptyLabel={dict.configurator.dropHere}>
-        <Canvas
-          shadows
-          dpr={[1, 1.5]}
-          camera={{ position: [0, 0.8, 3.2], fov: 42 }}
-          gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-          style={{ width: "100%", height: "100%", display: "block" }}
-        >
-          <SceneContent />
-        </Canvas>
-      </CanvasDropZone>
+    <div className="relative h-full min-h-[420px] w-full overflow-hidden rounded-sm border border-gold/10 bg-charcoal-soft lg:min-h-[520px]">
+      <ConfiguratorErrorBoundary>
+        {!mounted ? (
+          <div className="flex h-full min-h-[420px] w-full items-center justify-center bg-charcoal-soft lg:min-h-[520px]">
+            <div className="h-8 w-8 animate-pulse rounded-full border border-gold/30" />
+          </div>
+        ) : (
+          <Canvas
+            shadows
+            dpr={dpr}
+            camera={{ position: [0, 0.6, 3.4], fov: 40, near: 0.1, far: 30 }}
+            gl={{
+              antialias: true,
+              alpha: false,
+              powerPreference: "high-performance",
+            }}
+            onCreated={({ gl }) => {
+              gl.shadowMap.enabled = true;
+              gl.shadowMap.type = THREE.PCFSoftShadowMap;
+              gl.toneMapping = THREE.ACESFilmicToneMapping;
+              gl.toneMappingExposure = 1.12;
+              gl.outputColorSpace = THREE.SRGBColorSpace;
+              gl.setClearColor("#0a0a0a", 1);
+            }}
+            style={{ width: "100%", height: "100%", display: "block", minHeight: "420px" }}
+          >
+            <JewelryEngineScene />
+          </Canvas>
+        )}
+      </ConfiguratorErrorBoundary>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/80 to-transparent px-4 py-3">
         <p className="text-center text-[0.6rem] font-light uppercase tracking-[0.25em] text-cream/40">

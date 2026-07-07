@@ -75,12 +75,6 @@
     color: var(--color-ivory);
   }
 
-  body.intro-active .skip-link,
-  body.intro-active .lang-switcher {
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   /* Keep content readable before Framer Motion hydrates */
   body:not(.motion-ready) main [style*="opacity: 0"],
   body:not(.motion-ready) main [style*="opacity:0"] {

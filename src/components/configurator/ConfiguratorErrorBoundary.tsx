@@ -24,8 +24,7 @@ export class ConfiguratorErrorBoundary extends Component<Props, State> {
             Preview unavailable
           </p>
           <p className="max-w-sm text-sm font-light text-cream/60">
-            The 3D viewer could not start. Try refreshing, or use the parts library
-            on the left — drag-and-drop still works once the view loads.
+            The 3D viewer could not start. Try refreshing the page.
           </p>
           <button
             type="button"

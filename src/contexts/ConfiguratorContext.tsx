@@ -6,84 +6,126 @@ import {
   useContext,
   useMemo,
   useReducer,
+  useRef,
   type ReactNode,
+  type RefObject,
 } from "react";
-import { partsById } from "@/lib/configurator/parts-catalog";
+import { exportSceneToGltf, exportSceneToObj } from "@/lib/configurator/export-scene";
 import {
-  DND_CANVAS_DROP,
-  DND_PART_PREFIX,
+  defaultShankForCategory,
+  headOptionsForCategory,
+  type GemstoneType,
+  type HeadStyle,
+  type MetalFinish,
+  type ShankStyle,
+} from "@/lib/configurator/asset-catalog";
+import {
   initialConfiguratorState,
+  type AccessoryType,
   type ConfiguratorAction,
   type ConfiguratorState,
-  type JewelryPartId,
+  type EngraveMode,
+  type JewelryCategory,
   type MetalType,
+  type PlacedAccessory,
+  type StampTool,
+  type WorkmatIconNode,
+  type WorkmatTextNode,
 } from "@/lib/configurator/types";
-
-let instanceCounter = 0;
-
-function nextInstanceId() {
-  instanceCounter += 1;
-  return `part-${instanceCounter}-${Date.now()}`;
-}
-
-function defaultPosition(index: number): [number, number, number] {
-  const col = index % 3;
-  const row = Math.floor(index / 3);
-  return [(col - 1) * 0.45, 0.15 - row * 0.35, 0];
-}
+import type { Group } from "three";
 
 function configuratorReducer(
   state: ConfiguratorState,
   action: ConfiguratorAction
 ): ConfiguratorState {
   switch (action.type) {
-    case "ADD_PART": {
-      const def = partsById[action.payload.partId];
-      const index = state.placedParts.length;
-      const position = action.payload.position ?? defaultPosition(index);
-      const newPart = {
-        instanceId: nextInstanceId(),
-        partId: action.payload.partId,
-        position,
-        rotation: [...def.defaultRotation] as [number, number, number],
-      };
+    case "SET_CATEGORY": {
+      const category = action.payload;
+      const heads = headOptionsForCategory(category);
       return {
         ...state,
-        placedParts: [...state.placedParts, newPart],
-        selectedInstanceId: newPart.instanceId,
+        category,
+        accessories: [],
+        shankStyle: defaultShankForCategory(category),
+        headStyle: heads[0] ?? state.headStyle,
       };
     }
-    case "REMOVE_PART":
-      return {
-        ...state,
-        placedParts: state.placedParts.filter((p) => p.instanceId !== action.payload),
-        selectedInstanceId:
-          state.selectedInstanceId === action.payload ? null : state.selectedInstanceId,
-      };
-    case "SELECT_PART":
-      return { ...state, selectedInstanceId: action.payload };
-    case "UPDATE_PART_POSITION":
-      return {
-        ...state,
-        placedParts: state.placedParts.map((p) =>
-          p.instanceId === action.payload.instanceId
-            ? { ...p, position: action.payload.position }
-            : p
-        ),
-      };
-    case "UPDATE_PART_ROTATION":
-      return {
-        ...state,
-        placedParts: state.placedParts.map((p) =>
-          p.instanceId === action.payload.instanceId
-            ? { ...p, rotation: action.payload.rotation }
-            : p
-        ),
-      };
     case "SET_METAL":
       return { ...state, activeMetal: action.payload };
-    case "SET_ENGRAVING":
-      return { ...state, engravingText: action.payload };
+    case "SET_METAL_FINISH":
+      return { ...state, metalFinish: action.payload };
+    case "SET_SHANK_STYLE":
+      return { ...state, shankStyle: action.payload };
+    case "SET_HEAD_STYLE":
+      return { ...state, headStyle: action.payload };
+    case "SET_PRIMARY_GEM":
+      return { ...state, primaryGem: action.payload };
+    case "SET_ENGRAVE_MODE":
+      return { ...state, engraveMode: action.payload };
+    case "SET_STAMP_TOOL":
+      return { ...state, stampTool: action.payload };
+    case "SET_RING_SIZE":
+      return { ...state, ring: { ...state.ring, ringSize: action.payload } };
+    case "SET_RING_BAND_WIDTH":
+      return { ...state, ring: { ...state.ring, bandWidth: action.payload } };
+    case "SET_RING_BAND_THICKNESS":
+      return { ...state, ring: { ...state.ring, bandThickness: action.payload } };
+    case "SET_BRACELET_WRIST":
+      return { ...state, bracelet: { ...state.bracelet, wristSize: action.payload } };
+    case "SET_BRACELET_BAND_WIDTH":
+      return { ...state, bracelet: { ...state.bracelet, bandWidth: action.payload } };
+    case "SET_BRACELET_BAND_THICKNESS":
+      return { ...state, bracelet: { ...state.bracelet, bandThickness: action.payload } };
+    case "SET_PENDANT_WIDTH":
+      return { ...state, pendant: { ...state.pendant, width: action.payload } };
+    case "SET_PENDANT_HEIGHT":
+      return { ...state, pendant: { ...state.pendant, height: action.payload } };
+    case "SET_PENDANT_DEPTH":
+      return { ...state, pendant: { ...state.pendant, depth: action.payload } };
+    case "SET_PENDANT_LOOP":
+      return { ...state, pendant: { ...state.pendant, loopRadius: action.payload } };
+    case "UPSERT_WORKMAT_TEXT": {
+      const exists = state.workmat.texts.some((t) => t.id === action.payload.id);
+      return {
+        ...state,
+        workmat: {
+          ...state.workmat,
+          texts: exists
+            ? state.workmat.texts.map((t) =>
+                t.id === action.payload.id ? action.payload : t
+              )
+            : [...state.workmat.texts, action.payload],
+        },
+      };
+    }
+    case "REMOVE_WORKMAT_TEXT":
+      return {
+        ...state,
+        workmat: {
+          ...state.workmat,
+          texts: state.workmat.texts.filter((t) => t.id !== action.payload),
+        },
+      };
+    case "ADD_WORKMAT_ICON":
+      return {
+        ...state,
+        workmat: { ...state.workmat, icons: [...state.workmat.icons, action.payload] },
+      };
+    case "REMOVE_WORKMAT_ICON":
+      return {
+        ...state,
+        workmat: {
+          ...state.workmat,
+          icons: state.workmat.icons.filter((i) => i.id !== action.payload),
+        },
+      };
+    case "ADD_ACCESSORY":
+      return { ...state, accessories: [...state.accessories, action.payload] };
+    case "REMOVE_ACCESSORY":
+      return {
+        ...state,
+        accessories: state.accessories.filter((a) => a.id !== action.payload),
+      };
     case "RESET":
       return initialConfiguratorState;
     default:
@@ -92,95 +134,206 @@ function configuratorReducer(
 }
 
 type ConfiguratorContextValue = ConfiguratorState & {
-  addPart: (partId: JewelryPartId, position?: [number, number, number]) => void;
-  removePart: (instanceId: string) => void;
-  selectPart: (instanceId: string | null) => void;
-  updatePartPosition: (instanceId: string, position: [number, number, number]) => void;
-  updatePartRotation: (instanceId: string, rotation: [number, number, number]) => void;
+  sceneRootRef: RefObject<Group | null>;
+  setCategory: (category: JewelryCategory) => void;
   setMetal: (metal: MetalType) => void;
-  setEngraving: (text: string) => void;
+  setMetalFinish: (finish: MetalFinish) => void;
+  setShankStyle: (style: ShankStyle) => void;
+  setHeadStyle: (style: HeadStyle) => void;
+  setPrimaryGem: (gem: GemstoneType) => void;
+  setEngraveMode: (mode: EngraveMode) => void;
+  setStampTool: (tool: StampTool) => void;
+  setRingSize: (size: number) => void;
+  setRingBandWidth: (width: number) => void;
+  setRingBandThickness: (thickness: number) => void;
+  setBraceletWrist: (size: number) => void;
+  setBraceletBandWidth: (width: number) => void;
+  setBraceletBandThickness: (thickness: number) => void;
+  setPendantWidth: (width: number) => void;
+  setPendantHeight: (height: number) => void;
+  setPendantDepth: (depth: number) => void;
+  setPendantLoop: (radius: number) => void;
+  upsertWorkmatText: (node: WorkmatTextNode) => void;
+  addWorkmatIcon: (node: WorkmatIconNode) => void;
+  removeWorkmatIcon: (id: string) => void;
+  addAccessory: (accessory: PlacedAccessory) => void;
+  removeAccessory: (id: string) => void;
   reset: () => void;
-  handleDragEnd: (activeId: string | null, overId: string | null) => void;
+  exportObj: () => boolean;
+  exportGltf: () => Promise<boolean>;
 };
 
 const ConfiguratorContext = createContext<ConfiguratorContextValue | null>(null);
 
 export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(configuratorReducer, initialConfiguratorState);
+  const sceneRootRef = useRef<Group | null>(null);
 
-  const addPart = useCallback((partId: JewelryPartId, position?: [number, number, number]) => {
-    dispatch({ type: "ADD_PART", payload: { partId, position } });
+  const setCategory = useCallback((category: JewelryCategory) => {
+    dispatch({ type: "SET_CATEGORY", payload: category });
   }, []);
 
-  const removePart = useCallback((instanceId: string) => {
-    dispatch({ type: "REMOVE_PART", payload: instanceId });
+  const setMetalFinish = useCallback((finish: MetalFinish) => {
+    dispatch({ type: "SET_METAL_FINISH", payload: finish });
   }, []);
 
-  const selectPart = useCallback((instanceId: string | null) => {
-    dispatch({ type: "SELECT_PART", payload: instanceId });
+  const setShankStyle = useCallback((style: ShankStyle) => {
+    dispatch({ type: "SET_SHANK_STYLE", payload: style });
   }, []);
 
-  const updatePartPosition = useCallback(
-    (instanceId: string, position: [number, number, number]) => {
-      dispatch({ type: "UPDATE_PART_POSITION", payload: { instanceId, position } });
-    },
-    []
-  );
+  const setHeadStyle = useCallback((style: HeadStyle) => {
+    dispatch({ type: "SET_HEAD_STYLE", payload: style });
+  }, []);
 
-  const updatePartRotation = useCallback(
-    (instanceId: string, rotation: [number, number, number]) => {
-      dispatch({ type: "UPDATE_PART_ROTATION", payload: { instanceId, rotation } });
-    },
-    []
-  );
+  const setPrimaryGem = useCallback((gem: GemstoneType) => {
+    dispatch({ type: "SET_PRIMARY_GEM", payload: gem });
+  }, []);
 
   const setMetal = useCallback((metal: MetalType) => {
     dispatch({ type: "SET_METAL", payload: metal });
   }, []);
 
-  const setEngraving = useCallback((text: string) => {
-    dispatch({ type: "SET_ENGRAVING", payload: text });
+  const setEngraveMode = useCallback((mode: EngraveMode) => {
+    dispatch({ type: "SET_ENGRAVE_MODE", payload: mode });
+  }, []);
+
+  const setStampTool = useCallback((tool: StampTool) => {
+    dispatch({ type: "SET_STAMP_TOOL", payload: tool });
+  }, []);
+
+  const setRingSize = useCallback((size: number) => {
+    dispatch({ type: "SET_RING_SIZE", payload: size });
+  }, []);
+
+  const setRingBandWidth = useCallback((width: number) => {
+    dispatch({ type: "SET_RING_BAND_WIDTH", payload: width });
+  }, []);
+
+  const setRingBandThickness = useCallback((thickness: number) => {
+    dispatch({ type: "SET_RING_BAND_THICKNESS", payload: thickness });
+  }, []);
+
+  const setBraceletWrist = useCallback((size: number) => {
+    dispatch({ type: "SET_BRACELET_WRIST", payload: size });
+  }, []);
+
+  const setBraceletBandWidth = useCallback((width: number) => {
+    dispatch({ type: "SET_BRACELET_BAND_WIDTH", payload: width });
+  }, []);
+
+  const setBraceletBandThickness = useCallback((thickness: number) => {
+    dispatch({ type: "SET_BRACELET_BAND_THICKNESS", payload: thickness });
+  }, []);
+
+  const setPendantWidth = useCallback((width: number) => {
+    dispatch({ type: "SET_PENDANT_WIDTH", payload: width });
+  }, []);
+
+  const setPendantHeight = useCallback((height: number) => {
+    dispatch({ type: "SET_PENDANT_HEIGHT", payload: height });
+  }, []);
+
+  const setPendantDepth = useCallback((depth: number) => {
+    dispatch({ type: "SET_PENDANT_DEPTH", payload: depth });
+  }, []);
+
+  const setPendantLoop = useCallback((radius: number) => {
+    dispatch({ type: "SET_PENDANT_LOOP", payload: radius });
+  }, []);
+
+  const upsertWorkmatText = useCallback((node: WorkmatTextNode) => {
+    dispatch({ type: "UPSERT_WORKMAT_TEXT", payload: node });
+  }, []);
+
+  const addWorkmatIcon = useCallback((node: WorkmatIconNode) => {
+    dispatch({ type: "ADD_WORKMAT_ICON", payload: node });
+  }, []);
+
+  const removeWorkmatIcon = useCallback((id: string) => {
+    dispatch({ type: "REMOVE_WORKMAT_ICON", payload: id });
+  }, []);
+
+  const addAccessory = useCallback((accessory: PlacedAccessory) => {
+    dispatch({ type: "ADD_ACCESSORY", payload: accessory });
+  }, []);
+
+  const removeAccessory = useCallback((id: string) => {
+    dispatch({ type: "REMOVE_ACCESSORY", payload: id });
   }, []);
 
   const reset = useCallback(() => {
     dispatch({ type: "RESET" });
   }, []);
 
-  const handleDragEnd = useCallback(
-    (activeId: string | null, overId: string | null) => {
-      if (!activeId || !overId || !activeId.startsWith(DND_PART_PREFIX)) return;
-      const partId = activeId.slice(DND_PART_PREFIX.length) as JewelryPartId;
-      if (overId === DND_CANVAS_DROP && partsById[partId]) {
-        addPart(partId);
-      }
-    },
-    [addPart]
-  );
+  const exportObj = useCallback(() => {
+    if (!sceneRootRef.current) return false;
+    return exportSceneToObj(sceneRootRef.current);
+  }, []);
+
+  const exportGltf = useCallback(async () => {
+    if (!sceneRootRef.current) return false;
+    return exportSceneToGltf(sceneRootRef.current);
+  }, []);
 
   const value = useMemo(
     () => ({
       ...state,
-      addPart,
-      removePart,
-      selectPart,
-      updatePartPosition,
-      updatePartRotation,
+      sceneRootRef,
+      setCategory,
       setMetal,
-      setEngraving,
+      setMetalFinish,
+      setShankStyle,
+      setHeadStyle,
+      setPrimaryGem,
+      setEngraveMode,
+      setStampTool,
+      setRingSize,
+      setRingBandWidth,
+      setRingBandThickness,
+      setBraceletWrist,
+      setBraceletBandWidth,
+      setBraceletBandThickness,
+      setPendantWidth,
+      setPendantHeight,
+      setPendantDepth,
+      setPendantLoop,
+      upsertWorkmatText,
+      addWorkmatIcon,
+      removeWorkmatIcon,
+      addAccessory,
+      removeAccessory,
       reset,
-      handleDragEnd,
+      exportObj,
+      exportGltf,
     }),
     [
       state,
-      addPart,
-      removePart,
-      selectPart,
-      updatePartPosition,
-      updatePartRotation,
+      setCategory,
       setMetal,
-      setEngraving,
+      setMetalFinish,
+      setShankStyle,
+      setHeadStyle,
+      setPrimaryGem,
+      setEngraveMode,
+      setStampTool,
+      setRingSize,
+      setRingBandWidth,
+      setRingBandThickness,
+      setBraceletWrist,
+      setBraceletBandWidth,
+      setBraceletBandThickness,
+      setPendantWidth,
+      setPendantHeight,
+      setPendantDepth,
+      setPendantLoop,
+      upsertWorkmatText,
+      addWorkmatIcon,
+      removeWorkmatIcon,
+      addAccessory,
+      removeAccessory,
       reset,
-      handleDragEnd,
+      exportObj,
+      exportGltf,
     ]
   );
 
@@ -196,3 +349,5 @@ export function useConfigurator() {
   }
   return context;
 }
+
+export type { AccessoryType, PlacedAccessory, WorkmatTextNode };

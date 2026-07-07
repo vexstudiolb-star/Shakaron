@@ -1,8 +1,8 @@
 export const siteConfig = {
   assets: {
     logo: "/logo.png",
-    logoVideo: "/logo-video.mp4",
     heroVideo: "/hero-video.mp4",
+    assistantMascot: "/assistant-mascot.png",
   },
   contact: {
     phone: "00961 76 071 922",
@@ -14,12 +14,28 @@ export const siteConfig = {
     { id: "instagram" as const, href: "https://instagram.com" },
   ],
   navHrefs: {
+    newCollection: "#new-collection",
     collections: "#collections",
     bespoke: "#bespoke",
     atelier: "#atelier",
     contact: "#contact",
   },
 } as const;
+
+export type NavSection = keyof typeof siteConfig.navHrefs;
+
+/** Hash links that work from any route (e.g. configurator → homepage section). */
+export function localeNavHref(locale: string, section: NavSection) {
+  return `/${locale}${siteConfig.navHrefs[section]}`;
+}
+
+export function localeCollectionHref(locale: string, category?: string) {
+  return category ? `/${locale}/collections/${category}` : `/${locale}/collections`;
+}
+
+export function localeProductHref(locale: string, category: string, productId: string) {
+  return `/${locale}/collections/${category}/${productId}`;
+}
 
 const img = {
   ring: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",

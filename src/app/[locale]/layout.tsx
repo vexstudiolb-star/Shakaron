@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { SiteLoader } from "@/components/layout/SiteLoader";
-import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { SalesAssistant } from "@/components/assistant/SalesAssistant";
 import { HtmlAttributes } from "@/components/layout/HtmlAttributes";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { getDirection, isLocale, locales, type Locale } from "@/i18n/config";
@@ -52,13 +50,10 @@ export default async function LocaleLayout({ children, params }: Props) {
       <a href="#main-content" className="skip-link">
         {dict.common.skipToContent}
       </a>
-      <LanguageSwitcher fixed />
-      <SiteLoader>
-        <Navbar />
-        <main id="main-content">{children}</main>
-        <Footer />
-        <WhatsAppButton />
-      </SiteLoader>
+      <Navbar />
+      <main id="main-content">{children}</main>
+      <Footer />
+      <SalesAssistant />
     </LocaleProvider>
   );
 }

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { siteConfig } from "@/lib/constants";
+import { localeNavHref, siteConfig } from "@/lib/constants";
 import { useLocale } from "@/contexts/LocaleContext";
 import { fadeUp } from "@/lib/motion";
 
 export function Hero() {
-  const { dict } = useLocale();
+  const { locale, dict } = useLocale();
 
   return (
     <section
@@ -70,7 +70,7 @@ export function Hero() {
           className="mt-12"
         >
           <Link
-            href={siteConfig.navHrefs.collections}
+            href={localeNavHref(locale, "newCollection")}
             className="group inline-flex items-center gap-3 border border-gold/40 bg-gold/10 px-10 py-4 text-[0.65rem] font-light uppercase tracking-[0.25em] text-cream backdrop-blur-sm transition-all duration-700 hover:border-gold hover:bg-gold/20"
           >
             {dict.hero.explore}

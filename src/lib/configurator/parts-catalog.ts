@@ -1,4 +1,18 @@
-import type { JewelryPartId, PartCategory } from "./types";
+export type PartCategory = "chain" | "pendant" | "ring" | "charm" | "connector";
+
+export type JewelryPartId =
+  | "chain-cable-link"
+  | "chain-curb-link"
+  | "chain-rope-link"
+  | "chain-box-link"
+  | "chain-necklace"
+  | "pendant-disc"
+  | "pendant-heart"
+  | "pendant-bar"
+  | "pendant-teardrop"
+  | "ring-band"
+  | "charm-gem"
+  | "connector-clasp";
 
 export type PartDefinition = {
   id: JewelryPartId;

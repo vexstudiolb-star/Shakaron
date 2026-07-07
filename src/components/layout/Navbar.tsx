@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { siteConfig } from "@/lib/constants";
+import { localeNavHref } from "@/lib/constants";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -16,10 +16,11 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { label: dict.nav.collections, href: siteConfig.navHrefs.collections },
-    { label: dict.nav.bespoke, href: siteConfig.navHrefs.bespoke },
-    { label: dict.nav.atelier, href: siteConfig.navHrefs.atelier },
-    { label: dict.nav.contact, href: siteConfig.navHrefs.contact },
+    { label: dict.nav.newCollection, href: localeNavHref(locale, "newCollection") },
+    { label: dict.nav.collections, href: localeNavHref(locale, "collections") },
+    { label: dict.nav.bespoke, href: localeNavHref(locale, "bespoke") },
+    { label: dict.nav.atelier, href: localeNavHref(locale, "atelier") },
+    { label: dict.nav.contact, href: localeNavHref(locale, "contact") },
   ];
 
   useEffect(() => {
@@ -70,8 +71,10 @@ export function Navbar() {
             alt={dict.common.home}
           />
 
-          <div className="flex items-center gap-4 md:gap-6">
-            <ul className="hidden items-center gap-8 lg:flex">
+          <div className="flex items-center gap-3 md:gap-4">
+            <LanguageSwitcher className="hidden md:flex" />
+
+            <ul className="hidden items-center gap-6 xl:gap-8 lg:flex">
               {navItems.slice(2).map((item) => (
                 <li key={item.href}>
                   <Link

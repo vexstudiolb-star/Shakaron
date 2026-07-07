@@ -1,0 +1,86 @@
+@keyframes assistant-bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.assistant-anchor {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.assistant-speech-bubble {
+  position: relative;
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(196, 163, 90, 0.38);
+  border-radius: 999px;
+  background: rgba(18, 18, 18, 0.75);
+  color: rgba(247, 243, 235, 0.92);
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 8px 24px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    transform 0.3s ease;
+  animation: assistant-bubble-float 3.2s ease-in-out infinite;
+}
+
+.assistant-speech-bubble:hover,
+.assistant-speech-bubble:focus-visible {
+  border-color: rgba(196, 163, 90, 0.62);
+  background: rgba(22, 22, 22, 0.88);
+  outline: none;
+}
+
+.assistant-speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid rgba(196, 163, 90, 0.38);
+  border-top: 1px solid rgba(196, 163, 90, 0.38);
+  background: rgba(18, 18, 18, 0.75);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.assistant-speech-bubble:hover::after,
+.assistant-speech-bubble:focus-visible::after {
+  border-color: rgba(196, 163, 90, 0.62);
+  background: rgba(22, 22, 22, 0.88);
+}
+
+[dir="rtl"] .assistant-speech-bubble::after {
+  right: auto;
+  left: -4px;
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+[dir="rtl"] .assistant-speech-bubble:hover::after,
+[dir="rtl"] .assistant-speech-bubble:focus-visible::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant-speech-bubble {
+    animation: none;
+  }
+}
