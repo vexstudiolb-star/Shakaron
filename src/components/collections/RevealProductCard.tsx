@@ -50,18 +50,22 @@ export function RevealProductCard({
   href = siteConfig.contact.whatsapp,
 }: RevealProductCardProps) {
   const [worn, setWorn] = useState(false);
+  const activeLabel = worn ? wornLabel : productLabel;
 
   return (
     <article className="reveal-card">
       <div className="reveal-card__image-wrap">
+        {/* Item photo — gem side of the switch */}
         <div className={cn("reveal-card__layer", !worn && "reveal-card__layer--active")}>
           <Image
             src={productImage}
-            alt={line2}
+            alt={`${line2} — ${productLabel}`}
             fill
             sizes="340px"
+            priority={false}
           />
         </div>
+        {/* Model wearing the item — person side of the switch */}
         <div className={cn("reveal-card__layer", worn && "reveal-card__layer--active")}>
           <Image
             src={wornImage}
@@ -71,6 +75,10 @@ export function RevealProductCard({
           />
         </div>
 
+        <p className="reveal-card__view-label" aria-live="polite">
+          {activeLabel}
+        </p>
+
         <button
           type="button"
           className="reveal-card__switch"
@@ -78,8 +86,8 @@ export function RevealProductCard({
           onClick={() => setWorn((w) => !w)}
           role="switch"
           aria-checked={worn}
-          aria-label={worn ? wornLabel : productLabel}
-          title={worn ? wornLabel : productLabel}
+          aria-label={`Show ${worn ? productLabel : wornLabel}`}
+          title={`Show ${worn ? productLabel : wornLabel}`}
         >
           <span className="reveal-card__switch-track">
             <span className="reveal-card__switch-icons">
