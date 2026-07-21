@@ -13,7 +13,7 @@ import {
 import { localeProductHref } from "@/lib/constants";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { SpotlightProductCard } from "./SpotlightProductCard";
+import { RevealProductCard } from "./RevealProductCard";
 
 type CollectionShowcaseProps = {
   activeCategory: CollectionCategory;
@@ -118,12 +118,15 @@ export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) 
           {products.map((product) => {
             const copy = t.products[product.id as keyof typeof t.products];
             return (
-              <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[320px]">
-                <SpotlightProductCard
+              <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[340px]">
+                <RevealProductCard
                   line1={copy.line1}
                   line2={copy.line2}
                   price={t.priceOnRequest}
-                  images={product.images}
+                  productImage={product.images[0]}
+                  wornImage={product.wornImage}
+                  productLabel={t.viewProduct}
+                  wornLabel={t.viewWorn}
                   inquireLabel={t.inquire}
                   href={localeProductHref(locale, product.category, product.id)}
                 />

@@ -1,0 +1,218 @@
+/* Product card with a product / worn-on-model toggle.
+   Design adapted from https://codepen.io/designfenix/pen/qENLeEB */
+
+.reveal-card {
+  --switch-width: 62px;
+  --switch-height: 32px;
+  --switch-circle: 26px;
+  --switch-pad: 3px;
+  --switch-ease: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 340px;
+  padding: 0.75rem 0.75rem 1.25rem;
+  border-radius: 28px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0.6)
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 30px 60px rgba(206, 168, 132, 0.14),
+    0 12px 28px rgba(0, 0, 0, 0.14),
+    0 0 90px rgba(198, 169, 126, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.reveal-card__image-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #efe9e0;
+}
+
+.reveal-card__layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s ease;
+}
+
+.reveal-card__layer img {
+  object-fit: cover;
+}
+
+.reveal-card__layer--active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Toggle switch ── */
+.reveal-card__switch {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 3;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.reveal-card__switch-track {
+  position: relative;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  padding: var(--switch-pad);
+  display: flex;
+  align-items: center;
+  border-radius: var(--switch-height);
+  background-color: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: var(--switch-ease);
+}
+
+.reveal-card__switch[data-worn="true"] .reveal-card__switch-track {
+  background-color: rgba(196, 163, 90, 0.9);
+}
+
+.reveal-card__switch-circle {
+  width: var(--switch-circle);
+  height: var(--switch-circle);
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: var(--switch-ease);
+  z-index: 2;
+}
+
+.reveal-card__switch[data-worn="true"] .reveal-card__switch-circle {
+  transform: translateX(calc(var(--switch-width) - var(--switch-circle) - (var(--switch-pad) * 2)));
+}
+
+.reveal-card__switch-icons {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.reveal-card__switch-icons svg {
+  width: 15px;
+  height: 15px;
+  transition: opacity 0.3s ease;
+}
+
+.reveal-card__switch-icons .icon-gem {
+  color: #fff;
+  opacity: 1;
+}
+
+.reveal-card__switch-icons .icon-model {
+  color: rgba(255, 255, 255, 0.7);
+  opacity: 0.55;
+}
+
+.reveal-card__switch[data-worn="true"] .icon-gem {
+  opacity: 0.55;
+  color: #3a2c12;
+}
+
+.reveal-card__switch[data-worn="true"] .icon-model {
+  opacity: 1;
+  color: #3a2c12;
+}
+
+/* ── Info ── */
+.reveal-card__body {
+  padding: 1.1rem 0.6rem 0;
+  text-align: center;
+}
+
+.reveal-card__brand {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #a89578;
+}
+
+.reveal-card__title {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #4a443d;
+}
+
+.reveal-card__price {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #c89b5e;
+}
+
+.reveal-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding: 0.8rem 2rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(145deg, #d8a45c, #b97a2f);
+  box-shadow:
+    0 8px 20px rgba(201, 155, 94, 0.35),
+    inset 0 2px 6px rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reveal-card__cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 10px 26px rgba(185, 122, 47, 0.45),
+    inset 0 2px 6px rgba(255, 255, 255, 0.3);
+}
+
+.reveal-card__cta:active {
+  transform: translateY(1px);
+}
+
+.reveal-card__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

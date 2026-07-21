@@ -24,6 +24,12 @@ export const PRODUCT_TAGS: Record<string, readonly string[]> = {
   "petite-charm": ["kids", "child", "children", "charm", "flower", "delicate", "pendant"],
   "little-star": ["kids", "child", "children", "star", "charm", "pendant"],
   "mini-heart": ["kids", "child", "children", "heart", "love", "charm", "pendant"],
+  "feather-ring": ["under 1 gram", "under-1-gram", "light", "lightweight", "ring", "delicate", "gold", "everyday"],
+  "whisper-band": ["under 1 gram", "under-1-gram", "light", "lightweight", "ring", "band", "minimal", "gold"],
+  "petal-pendant": ["under 1 gram", "under-1-gram", "light", "lightweight", "necklace", "pendant", "flower", "delicate"],
+  "thread-chain": ["under 1 gram", "under-1-gram", "light", "lightweight", "necklace", "chain", "thin", "gold"],
+  "dewdrop-studs": ["under 1 gram", "under-1-gram", "light", "lightweight", "earrings", "studs", "delicate"],
+  "gossamer-anklet": ["under 1 gram", "under-1-gram", "light", "lightweight", "anklet", "chain", "delicate"],
 };
 
 const CATEGORY_ALIASES: Record<string, CollectionCategory> = {
@@ -49,6 +55,14 @@ const CATEGORY_ALIASES: Record<string, CollectionCategory> = {
   kid: "kids",
   child: "kids",
   children: "kids",
+  light: "under-1-gram",
+  lightweight: "under-1-gram",
+  "under 1 gram": "under-1-gram",
+  "under-1-gram": "under-1-gram",
+  gram: "under-1-gram",
+  anklet: "under-1-gram",
+  studs: "under-1-gram",
+  earrings: "under-1-gram",
 };
 
 const THEME_ALIASES: Record<string, readonly string[]> = {

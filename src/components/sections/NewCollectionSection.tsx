@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { SpotlightProductCard } from "@/components/collections/SpotlightProductCard";
+import { RevealProductCard } from "@/components/collections/RevealProductCard";
 import { useLocale } from "@/contexts/LocaleContext";
 import { localeCollectionHref, localeProductHref } from "@/lib/constants";
 import {
@@ -131,12 +131,15 @@ export function NewCollectionSection() {
             {products.map((product) => {
               const copy = t.products[product.id as keyof typeof t.products];
               return (
-                <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[320px]">
-                  <SpotlightProductCard
+                <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[340px]">
+                  <RevealProductCard
                     line1={copy.line1}
                     line2={copy.line2}
                     price={t.priceOnRequest}
-                    images={product.images}
+                    productImage={product.images[0]}
+                    wornImage={product.wornImage}
+                    productLabel={t.viewProduct}
+                    wornLabel={t.viewWorn}
                     inquireLabel={t.inquire}
                     href={localeProductHref(locale, product.category, product.id)}
                   />
