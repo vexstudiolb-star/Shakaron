@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-type Props = { needsSetup?: boolean };
+type Props = { needsSetup?: boolean; allowlistConfigured?: boolean };
 
-export function AdminLoginForm({ needsSetup = false }: Props) {
-  const router = useRouter();
+export function AdminLoginForm({ needsSetup = false, allowlistConfigured = true }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,17 +23,17 @@ export function AdminLoginForm({ needsSetup = false }: Props) {
         body: JSON.stringify({ email, password }),
       });
 
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(body.error ?? "Login failed");
+        setError(typeof body.error === "string" ? body.error : "Login failed");
+        setLoading(false);
         return;
       }
 
-      router.push("/admin");
-      router.refresh();
+      // Full navigation so auth cookies are applied before the protected layout runs
+      window.location.assign("/admin");
     } catch {
-      setError("Could not connect. Check your Supabase keys in .env.local");
-    } finally {
+      setError("Could not connect. Check your Supabase keys in .env.local / Vercel.");
       setLoading(false);
     }
   };
@@ -47,6 +45,13 @@ export function AdminLoginForm({ needsSetup = false }: Props) {
           <h1 className="font-serif text-2xl text-gold">Shakaron Admin</h1>
           <p className="mt-2 text-sm text-cream/50">Sign in with your owner account</p>
         </div>
+
+        {!allowlistConfigured ? (
+          <p className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+            Set <code className="text-amber-100">ADMIN_ALLOWED_EMAILS</code> to your login email
+            in <code className="text-amber-100">.env.local</code> (and Vercel), then restart.
+          </p>
+        ) : null}
 
         <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-gold/20 bg-charcoal/80 p-6">
           <label className="block space-y-1.5">
@@ -88,13 +93,10 @@ export function AdminLoginForm({ needsSetup = false }: Props) {
         <p className="mt-6 text-center text-xs text-cream/30">
           {needsSetup ? (
             <span className="text-amber-400/80">
-              Copy <code className="text-cream/50">.env.example</code> to{" "}
-              <code className="text-cream/50">.env.local</code> and add your Supabase &amp; R2 keys.
+              Add Supabase keys to env, then create a user in Supabase Auth.
             </span>
           ) : (
-            <>
-              Add Supabase &amp; R2 keys to <code className="text-cream/50">.env.local</code> first.
-            </>
+            <>Use the same email you added to ADMIN_ALLOWED_EMAILS.</>
           )}
         </p>
       </div>
