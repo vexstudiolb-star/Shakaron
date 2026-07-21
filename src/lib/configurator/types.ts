@@ -82,9 +82,9 @@ export const SYMBOL_IDS = ["heart", "star", "infinity", "diamond"] as const;
 export type SymbolId = (typeof SYMBOL_IDS)[number];
 
 export const FONT_OPTIONS = [
+  "Qunotz DEMO, sans-serif",
   "Georgia, serif",
   "Inter, sans-serif",
-  "Playfair Display, serif",
   "Cairo, sans-serif",
 ] as const;
 
