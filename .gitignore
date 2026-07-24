@@ -35,7 +35,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# large media — upload to hosting / public/ manually
+# large media — upload big videos manually (keep hero for the landing page)
 *.mp4
 *.mov
 *.webm
+!public/hero-video.mp4
