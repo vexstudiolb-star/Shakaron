@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Plus, Pencil } from "lucide-react";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import type { CollectionCategoryRow } from "@/lib/admin/types";
 
 function slugify(value: string) {
@@ -182,15 +183,14 @@ export default function AdminCategoriesPage() {
                 className={inputClass}
               />
             </label>
-            <label className="block space-y-1">
-              <span className="text-xs text-cream/50">Hero image URL</span>
-              <input
-                value={form.hero_image_url}
-                onChange={(e) => setForm((f) => ({ ...f, hero_image_url: e.target.value }))}
-                placeholder="https://…"
-                className={inputClass}
+            <div className="sm:col-span-2">
+              <ImageUploader
+                folder="categories"
+                label="Hero image (Cloudflare R2)"
+                currentUrl={form.hero_image_url || null}
+                onUploaded={(r) => setForm((f) => ({ ...f, hero_image_url: r.url }))}
               />
-            </label>
+            </div>
             <label className="block space-y-1 sm:col-span-2">
               <span className="text-xs text-cream/50">Description (EN)</span>
               <textarea

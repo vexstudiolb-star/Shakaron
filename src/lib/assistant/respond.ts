@@ -48,8 +48,8 @@ const COPY = {
     pricing:
       "All Shakaron pieces are bespoke and priced on request. Tap a piece you like, or message us on WhatsApp for a private consultation.",
     contact: `I'd be happy to connect you with our atelier. Message us on WhatsApp at ${siteConfig.contact.phone} or tap below.`,
-    configurator:
-      "You can design your own piece in our 3D studio — choose metal, gemstones, and engraving. I can take you there now.",
+    custom:
+      "For a custom or bespoke piece, message our atelier on WhatsApp — we'll design it with you privately.",
     empty: "Please describe what you're looking for — style, category, or occasion.",
     suggestions: ["Flower pendant", "Engagement ring", "Kids charm", "Bridal full set"],
   },
@@ -65,8 +65,8 @@ const COPY = {
     pricing:
       "كل قطع شاكارون حصرية والسعر عند الطلب. اختر قطعة تعجبك أو راسلنا على واتساب لاستشارة خاصة.",
     contact: `يسعدني ربطك بورشتنا. راسلنا على واتساب ${siteConfig.contact.phone}.`,
-    configurator:
-      "يمكنك تصميم قطعتك في استوديو ثلاثي الأبعاد — اختر المعدن والأحجار والنقش. يمكنني أخذك إليه الآن.",
+    custom:
+      "للقطع حسب الطلب، راسل ورشتنا على واتساب — نصمّمها معك بشكل خاص.",
     empty: "صف ما تبحث عنه — الأسلوب أو الفئة أو المناسبة.",
     suggestions: ["قلادة وردة", "خاتم خطوبة", "تعليقة أطفال", "طقم عروس"],
   },
@@ -94,9 +94,9 @@ export function generateAssistantReply(query: string, locale: Locale): Assistant
 
   if (isConfiguratorQuery(trimmed)) {
     return {
-      message: t.configurator,
+      message: t.custom,
       products: [],
-      suggestions: locale === "ar" ? ["افتح الاستوديو"] : ["Open studio"],
+      suggestions: locale === "ar" ? ["تواصل واتساب", "خواتم", "قلائد"] : ["WhatsApp", "Rings", "Necklaces"],
     };
   }
 

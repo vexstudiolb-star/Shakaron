@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { MessageCircle, Search, Send, X } from "lucide-react";
 import { AssistantProductCard } from "@/components/assistant/AssistantProductCard";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -296,13 +295,6 @@ export function SalesAssistant() {
                 >
                   ← {t.needHelp}
                 </button>
-                <Link
-                  href={`/${locale}/configurator`}
-                  className="text-[0.6rem] uppercase tracking-[0.12em] text-cream/40 transition-colors hover:text-gold"
-                  onClick={closeWorkspace}
-                >
-                  {t.designYourOwn}
-                </Link>
               </div>
             </div>
           </>

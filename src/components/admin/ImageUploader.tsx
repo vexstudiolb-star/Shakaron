@@ -63,67 +63,36 @@ export function ImageUploader({
           fileType: "image/webp",
         });
 
-        const uploadFile =
-          compressed.size < file.size ? compressed : file;
-        const mimeType = uploadFile.type || "image/webp";
-        const dims = await getImageDimensions(uploadFile).catch(() => undefined);
+        const prepared = compressed.size < file.size ? compressed : file;
+        const mimeType = prepared.type || "image/webp";
+        const dims = await getImageDimensions(prepared).catch(() => undefined);
 
-        const presignRes = await fetch("/api/admin/upload/presign", {
+        const body = new FormData();
+        const blobName = prepared.name?.replace(/\.[^.]+$/, ".webp") || "image.webp";
+        body.append("file", prepared, blobName);
+        body.append("folder", folder);
+
+        const uploadRes = await fetch("/api/admin/upload", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileName: uploadFile.name.replace(/\.[^.]+$/, ".webp"),
-            contentType: mimeType,
-            folder,
-          }),
+          body,
         });
 
-        if (!presignRes.ok) {
-          const body = await presignRes.json().catch(() => ({}));
-          throw new Error(body.error ?? "Failed to prepare upload");
-        }
-
-        const { uploadUrl, publicUrl, key } = (await presignRes.json()) as {
-          uploadUrl: string;
-          publicUrl: string;
-          key: string;
-        };
-
-        const putRes = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": mimeType },
-          body: uploadFile,
-        });
-
-        if (!putRes.ok) {
-          throw new Error("Upload to storage failed");
+        const payload = await uploadRes.json().catch(() => ({}));
+        if (!uploadRes.ok) {
+          throw new Error(payload.error ?? "Upload to Cloudflare R2 failed");
         }
 
         const result: UploadedResult = {
-          url: publicUrl,
-          key,
-          fileName: uploadFile.name,
-          mimeType,
-          sizeBytes: uploadFile.size,
+          url: payload.url as string,
+          key: payload.key as string,
+          fileName: (payload.fileName as string) || blobName,
+          mimeType: (payload.mimeType as string) || mimeType,
+          sizeBytes: (payload.sizeBytes as number) || prepared.size,
           width: dims?.width,
           height: dims?.height,
         };
 
-        await fetch("/api/admin/media", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            file_name: result.fileName,
-            url: result.url,
-            r2_key: result.key,
-            mime_type: result.mimeType,
-            size_bytes: result.sizeBytes,
-            width: result.width ?? null,
-            height: result.height ?? null,
-          }),
-        });
-
-        setPreview(publicUrl);
+        setPreview(result.url);
         onUploaded(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Upload failed");
@@ -192,7 +161,9 @@ export function ImageUploader({
       </div>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
-      <p className="text-xs text-cream/40">Images are compressed for mobile. Max ~1.2 MB.</p>
+      <p className="text-xs text-cream/40">
+        Uploads go to Cloudflare R2 and are saved on the product in Supabase.
+      </p>
     </div>
   );
 }

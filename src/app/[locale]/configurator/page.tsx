@@ -1,22 +1,11 @@
-import type { Metadata } from "next";
-import { JewelryConfigurator } from "@/components/configurator";
-import { getDictionary } from "@/i18n/get-dictionary";
-import { isLocale, type Locale } from "@/i18n/config";
+import { redirect } from "next/navigation";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale: localeParam } = await params;
-  if (!isLocale(localeParam)) return {};
-  const dict = getDictionary(localeParam as Locale);
-  return {
-    title: dict.configurator.title,
-    description: dict.configurator.subtitle,
-  };
-}
-
-export default function ConfiguratorPage() {
-  return <JewelryConfigurator />;
+/** Design studio removed — send visitors back to the homepage. */
+export default async function ConfiguratorPage({ params }: Props) {
+  const { locale } = await params;
+  redirect(`/${locale}`);
 }

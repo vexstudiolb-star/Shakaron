@@ -11,9 +11,9 @@ import { localeCollectionHref, localeProductHref } from "@/lib/constants";
 import {
   CATEGORY_HERO_IMAGES,
   COLLECTION_CATEGORIES,
-  productsForCategory,
   type CollectionCategory,
 } from "@/lib/collections/catalog";
+import { useStorefrontProducts } from "@/lib/collections/use-storefront-products";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,8 @@ export function NewCollectionSection() {
   const { locale, dict } = useLocale();
   const t = dict.newCollection;
   const [activeCategory, setActiveCategory] = useState<CollectionCategory>("rings");
-  const products = productsForCategory(activeCategory).slice(0, HOME_PREVIEW_COUNT);
+  const { forCategory } = useStorefrontProducts();
+  const products = forCategory(activeCategory).slice(0, HOME_PREVIEW_COUNT);
   const categoryLabel = t.categories[activeCategory];
 
   return (
@@ -130,12 +131,31 @@ export function NewCollectionSection() {
           >
             {products.map((product) => {
               const copy = t.products[product.id as keyof typeof t.products];
+              const line1 =
+                product.source === "cms"
+                  ? locale === "ar"
+                    ? product.line1Ar
+                    : product.line1En
+                  : copy?.line1 ?? product.line1En;
+              const line2 =
+                product.source === "cms"
+                  ? locale === "ar"
+                    ? product.line2Ar
+                    : product.line2En
+                  : copy?.line2 ?? product.line2En;
+              const price =
+                product.source === "cms"
+                  ? locale === "ar"
+                    ? product.priceAr
+                    : product.priceEn
+                  : t.priceOnRequest;
+
               return (
                 <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[340px]">
                   <RevealProductCard
-                    line1={copy.line1}
-                    line2={copy.line2}
-                    price={t.priceOnRequest}
+                    line1={line1}
+                    line2={line2}
+                    price={price}
                     productImage={product.images[0]}
                     wornImage={product.wornImage}
                     productLabel={t.viewProduct}

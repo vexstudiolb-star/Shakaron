@@ -92,12 +92,6 @@ export default async function ProductDetailPage({ params }: Props) {
                 <MessageCircle size={15} />
                 {t.inquire}
               </a>
-              <Link
-                href={`/${localeParam}/configurator`}
-                className="inline-flex items-center gap-2 rounded-full border border-cream/15 px-8 py-3.5 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-cream/70 transition-colors hover:border-gold/40 hover:text-cream"
-              >
-                {dict.assistant.designYourOwn}
-              </Link>
             </div>
           </div>
         </div>
