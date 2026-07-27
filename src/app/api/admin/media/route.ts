@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
-import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import { requireAdminClient } from "@/lib/admin/require-admin";
 
 export async function POST(request: Request) {
-  const { isAdmin } = await getAdminSession();
-  if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const result = await requireAdminClient();
+  if (result.error) return result.error;
 
   const body = (await request.json()) as {
     file_name: string;
@@ -18,19 +17,17 @@ export async function POST(request: Request) {
     alt_ar?: string;
   };
 
-  const supabase = createServiceSupabaseClient();
-  const { data, error } = await supabase.from("media_assets").insert(body).select().single();
+  const { data, error } = await result.supabase.from("media_assets").insert(body).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ asset: data });
 }
 
 export async function GET() {
-  const { isAdmin } = await getAdminSession();
-  if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const result = await requireAdminClient();
+  if (result.error) return result.error;
 
-  const supabase = createServiceSupabaseClient();
-  const { data, error } = await supabase
+  const { data, error } = await result.supabase
     .from("media_assets")
     .select("*")
     .order("created_at", { ascending: false })

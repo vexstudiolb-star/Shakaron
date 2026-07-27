@@ -44,14 +44,18 @@ export async function POST(request: Request) {
       contentType: file.type || "application/octet-stream",
     });
 
-    const supabase = createServiceSupabaseClient();
-    await supabase.from("media_assets").insert({
-      file_name: file.name,
-      url: publicUrl,
-      r2_key: key,
-      mime_type: file.type,
-      size_bytes: file.size,
-    });
+    try {
+      const supabase = createServiceSupabaseClient();
+      await supabase.from("media_assets").insert({
+        file_name: file.name,
+        url: publicUrl,
+        r2_key: key,
+        mime_type: file.type,
+        size_bytes: file.size,
+      });
+    } catch {
+      // Upload still succeeded on R2 — media library insert is best-effort
+    }
 
     return NextResponse.json({
       url: publicUrl,

@@ -210,6 +210,24 @@ export default function AdminCategoriesPage() {
                 className={inputClass}
               />
             </label>
+            <label className="block space-y-1">
+              <span className="text-xs text-cream/50">Sort order</span>
+              <input
+                type="number"
+                value={form.sort_order}
+                onChange={(e) => setForm((f) => ({ ...f, sort_order: Number(e.target.value) }))}
+                className={inputClass}
+              />
+            </label>
+            <label className="flex items-center gap-2 self-end pb-2 text-sm text-cream/70">
+              <input
+                type="checkbox"
+                checked={form.is_active}
+                onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))}
+                className="accent-gold"
+              />
+              Visible on site
+            </label>
           </div>
           {error ? <p className="text-sm text-red-400">{error}</p> : null}
           <div className="flex gap-2">

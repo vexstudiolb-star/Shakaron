@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAdminSession } from "@/lib/admin/auth";
-import { createServiceSupabaseClient } from "@/lib/supabase/server";
-
-async function requireAdmin() {
-  const { isAdmin } = await getAdminSession();
-  if (!isAdmin) return null;
-  return createServiceSupabaseClient();
-}
+import { requireAdminClient } from "@/lib/admin/require-admin";
 
 export async function GET() {
-  const supabase = await requireAdmin();
-  if (!supabase) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const result = await requireAdminClient();
+  if (result.error) return result.error;
 
-  const { data, error } = await supabase
+  const { data, error } = await result.supabase
     .from("collection_categories")
     .select("*")
     .order("sort_order", { ascending: true });
@@ -22,11 +15,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await requireAdmin();
-  if (!supabase) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const result = await requireAdminClient();
+  if (result.error) return result.error;
 
   const body = await request.json();
-  const { data, error } = await supabase
+  const { data, error } = await result.supabase
     .from("collection_categories")
     .insert(body)
     .select()

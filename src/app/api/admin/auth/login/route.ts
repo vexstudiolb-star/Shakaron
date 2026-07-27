@@ -23,6 +23,9 @@ export async function POST(request: Request) {
   }
 
   const cookieStore = await cookies();
+  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] =
+    [];
+
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
@@ -30,7 +33,12 @@ export async function POST(request: Request) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
+          pendingCookies.push({ name, value, options: options ?? {} });
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // Ignore if called outside a mutable cookie context
+          }
         });
       },
     },
@@ -55,7 +63,11 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ user: { email: data.user.email }, ok: true });
+  const response = NextResponse.json({ user: { email: data.user.email }, ok: true });
+  pendingCookies.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
+  });
+  return response;
 }
 
 export async function DELETE() {
@@ -66,6 +78,9 @@ export async function DELETE() {
   }
 
   const cookieStore = await cookies();
+  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] =
+    [];
+
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
@@ -73,12 +88,22 @@ export async function DELETE() {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
+          pendingCookies.push({ name, value, options: options ?? {} });
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // ignore
+          }
         });
       },
     },
   });
 
   await supabase.auth.signOut();
-  return NextResponse.json({ ok: true });
+
+  const response = NextResponse.json({ ok: true });
+  pendingCookies.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
+  });
+  return response;
 }
