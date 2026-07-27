@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getStorefrontCatalog } from "@/lib/collections/cms-catalog";
 
-export const dynamic = "force-dynamic";
-
-/** Public catalog — categories + products from Supabase (images on R2). */
+/** Public catalog — short edge cache for faster mobile revisits */
 export async function GET() {
   const catalog = await getStorefrontCatalog();
-  return NextResponse.json(catalog);
+  return NextResponse.json(catalog, {
+    headers: {
+      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+    },
+  });
 }

@@ -50,30 +50,38 @@ export function RevealProductCard({
   href = siteConfig.contact.whatsapp,
 }: RevealProductCardProps) {
   const [worn, setWorn] = useState(false);
+  const [wornMounted, setWornMounted] = useState(false);
   const activeLabel = worn ? wornLabel : productLabel;
+
+  const showWorn = () => {
+    setWornMounted(true);
+    setWorn(true);
+  };
 
   return (
     <article className="reveal-card">
       <div className="reveal-card__image-wrap">
-        {/* Item photo — gem side of the switch */}
         <div className={cn("reveal-card__layer", !worn && "reveal-card__layer--active")}>
           <Image
             src={productImage}
             alt={`${line2} — ${productLabel}`}
             fill
-            sizes="340px"
+            sizes="(max-width: 640px) 90vw, 340px"
             priority={false}
+            loading="lazy"
           />
         </div>
-        {/* Model wearing the item — person side of the switch */}
-        <div className={cn("reveal-card__layer", worn && "reveal-card__layer--active")}>
-          <Image
-            src={wornImage}
-            alt={`${line2} — ${wornLabel}`}
-            fill
-            sizes="340px"
-          />
-        </div>
+        {wornMounted ? (
+          <div className={cn("reveal-card__layer", worn && "reveal-card__layer--active")}>
+            <Image
+              src={wornImage}
+              alt={`${line2} — ${wornLabel}`}
+              fill
+              sizes="(max-width: 640px) 90vw, 340px"
+              loading="lazy"
+            />
+          </div>
+        ) : null}
 
         <p className="reveal-card__view-label" aria-live="polite">
           {activeLabel}
@@ -83,7 +91,13 @@ export function RevealProductCard({
           type="button"
           className="reveal-card__switch"
           data-worn={worn}
-          onClick={() => setWorn((w) => !w)}
+          onClick={() => {
+            if (worn) {
+              setWorn(false);
+            } else {
+              showWorn();
+            }
+          }}
           role="switch"
           aria-checked={worn}
           aria-label={`Show ${worn ? productLabel : wornLabel}`}

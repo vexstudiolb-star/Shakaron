@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { craftsmanshipImages } from "@/lib/constants";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -24,6 +24,7 @@ function StepCard({ step, className = "" }: { step: Step; className?: string }) 
           fill
           sizes="(max-width: 768px) 85vw, 45vw"
           className="object-cover"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/20 to-transparent" />
       </div>
@@ -40,20 +41,72 @@ function StepCard({ step, className = "" }: { step: Step; className?: string }) 
   );
 }
 
-export function CraftsmanshipScroll() {
-  const { locale, dict } = useLocale();
+function DesktopCraftsmanship({
+  steps,
+  isRtl,
+  eyebrow,
+  title,
+  scrollHint,
+}: {
+  steps: Step[];
+  isRtl: boolean;
+  eyebrow: string;
+  title: string;
+  scrollHint: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
+  const x = useTransform(scrollYProgress, [0, 1], isRtl ? ["0%", "65%"] : ["0%", "-65%"]);
 
-  const isRtl = locale === "ar";
-  const x = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isRtl ? ["0%", "65%"] : ["0%", "-65%"]
+  return (
+    <div ref={containerRef} className="relative hidden h-[300vh] md:block">
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+        <div className="shrink-0 px-10 pb-8 pt-32">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            className="mx-auto max-w-7xl"
+          >
+            <p className="mb-3 text-[0.65rem] font-light uppercase tracking-[0.3em] text-gold">
+              {eyebrow}
+            </p>
+            <h2 className="font-serif text-5xl font-light text-cream">{title}</h2>
+          </motion.div>
+        </div>
+
+        <div className="flex flex-1 items-center overflow-hidden">
+          <motion.div style={{ x }} className="flex gap-8 px-10" dir="ltr">
+            {steps.map((step) => (
+              <StepCard key={step.step} step={step} className="w-[45vw]" />
+            ))}
+          </motion.div>
+        </div>
+
+        <div className="shrink-0 px-10 pb-8">
+          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-cream/30">{scrollHint}</p>
+        </div>
+      </div>
+    </div>
   );
+}
+
+export function CraftsmanshipScroll() {
+  const { locale, dict } = useLocale();
+  const isRtl = locale === "ar";
+  const [desktop, setDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setDesktop(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   const steps: Step[] = dict.craftsmanship.steps.map((step, i) => ({
     ...step,
@@ -61,29 +114,16 @@ export function CraftsmanshipScroll() {
   }));
 
   return (
-    <section
-      ref={containerRef}
-      className="relative bg-charcoal-soft"
-      aria-labelledby="craftsmanship-heading"
-    >
+    <section className="relative bg-charcoal-soft" aria-labelledby="craftsmanship-heading">
       <div className="px-6 py-24 md:hidden">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          className="mb-10"
-        >
+        <div className="mb-10">
           <p className="mb-3 text-[0.65rem] font-light uppercase tracking-[0.3em] text-gold">
             {dict.craftsmanship.eyebrow}
           </p>
-          <h2
-            id="craftsmanship-heading"
-            className="font-serif text-3xl font-light text-cream"
-          >
+          <h2 id="craftsmanship-heading" className="font-serif text-3xl font-light text-cream">
             {dict.craftsmanship.title}
           </h2>
-        </motion.div>
+        </div>
 
         <div
           className="-mx-6 flex gap-4 overflow-x-auto px-6 pb-4 hide-scrollbar snap-x snap-mandatory"
@@ -100,40 +140,15 @@ export function CraftsmanshipScroll() {
         </p>
       </div>
 
-      <div className="relative hidden h-[300vh] md:block">
-        <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-          <div className="shrink-0 px-10 pt-32 pb-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="mx-auto max-w-7xl"
-            >
-              <p className="mb-3 text-[0.65rem] font-light uppercase tracking-[0.3em] text-gold">
-                {dict.craftsmanship.eyebrow}
-              </p>
-              <h2 className="font-serif text-5xl font-light text-cream">
-                {dict.craftsmanship.title}
-              </h2>
-            </motion.div>
-          </div>
-
-          <div className="flex flex-1 items-center overflow-hidden">
-            <motion.div style={{ x }} className="flex gap-8 px-10" dir="ltr">
-              {steps.map((step) => (
-                <StepCard key={step.step} step={step} className="w-[45vw]" />
-              ))}
-            </motion.div>
-          </div>
-
-          <div className="shrink-0 px-10 pb-8">
-            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-cream/30">
-              {dict.craftsmanship.scrollHint}
-            </p>
-          </div>
-        </div>
-      </div>
+      {desktop ? (
+        <DesktopCraftsmanship
+          steps={steps}
+          isRtl={isRtl}
+          eyebrow={dict.craftsmanship.eyebrow}
+          title={dict.craftsmanship.title}
+          scrollHint={dict.craftsmanship.scrollHint}
+        />
+      ) : null}
     </section>
   );
 }

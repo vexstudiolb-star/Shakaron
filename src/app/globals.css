@@ -17,9 +17,9 @@
   --color-ivory: #faf8f4;
 
   --font-serif: "Qunotz DEMO", "QunotzDEMO", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-serif-ar: "Amiri", "Traditional Arabic", serif;
-  --font-sans-ar: "Cairo", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif-ar: var(--font-amiri), "Amiri", "Traditional Arabic", serif;
+  --font-sans-ar: var(--font-cairo), "Cairo", system-ui, sans-serif;
 }
 
 @font-face {
@@ -152,5 +152,16 @@
     border-radius: 2px;
     visibility: visible;
     pointer-events: auto;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

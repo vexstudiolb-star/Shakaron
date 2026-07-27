@@ -45,7 +45,13 @@ export default function AdminMediaPage() {
             className="overflow-hidden rounded-xl border border-gold/15 bg-cream/5"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={a.url} alt={a.alt_en} className="aspect-square w-full object-cover" />
+            <img
+              src={a.url}
+              alt={a.alt_en || a.file_name}
+              loading="lazy"
+              decoding="async"
+              className="aspect-square w-full object-cover"
+            />
             <div className="p-2">
               <p className="truncate text-[10px] text-cream/50">{a.file_name}</p>
               <button

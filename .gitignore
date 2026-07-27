@@ -40,3 +40,4 @@ next-env.d.ts
 *.mov
 *.webm
 !public/hero-video.mp4
+public/logo.original.png

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import imageCompression from "browser-image-compression";
 import { Camera, ImagePlus, Loader2, Upload } from "lucide-react";
 
 type UploadedResult = {
@@ -60,19 +59,25 @@ export function ImageUploader({
       setUploading(true);
 
       try {
-        // Skip heavy compression for already-small images (much faster admin uploads)
-        const needsCompression = file.size > 400_000 || !file.type.includes("webp");
-        const prepared = needsCompression
-          ? await imageCompression(file, {
-              maxSizeMB: 1.2,
-              maxWidthOrHeight: 1600,
-              useWebWorker: true,
-              fileType: "image/webp",
-            }).then((c) => (c.size < file.size ? c : file))
-          : file;
+        // Skip compression for already-small images (critical on mobile CPUs)
+        const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+        const sizeLimit = isMobile ? 900_000 : 500_000;
+        const needsCompression = file.size > sizeLimit;
+
+        let prepared: File | Blob = file;
+        if (needsCompression) {
+          const { default: imageCompression } = await import("browser-image-compression");
+          const compressed = await imageCompression(file, {
+            maxSizeMB: isMobile ? 0.9 : 1.2,
+            maxWidthOrHeight: isMobile ? 1400 : 1600,
+            useWebWorker: true,
+            fileType: "image/webp",
+          });
+          prepared = compressed.size < file.size ? compressed : file;
+        }
 
         const mimeType = prepared.type || file.type || "image/webp";
-        const dims = await getImageDimensions(prepared).catch(() => undefined);
+        const dims = await getImageDimensions(prepared as File).catch(() => undefined);
 
         const body = new FormData();
         const ext = mimeType.includes("png")
@@ -80,7 +85,7 @@ export function ImageUploader({
           : mimeType.includes("jpeg") || mimeType.includes("jpg")
             ? "jpg"
             : "webp";
-        const blobName = `${(prepared.name || file.name || "image").replace(/\.[^.]+$/, "")}.${ext}`;
+        const blobName = `${(file.name || "image").replace(/\.[^.]+$/, "")}.${ext}`;
         body.append("file", prepared, blobName);
         body.append("folder", folder);
 
@@ -128,7 +133,7 @@ export function ImageUploader({
       {preview ? (
         <div className="relative overflow-hidden rounded-xl border border-gold/20 bg-charcoal/50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="" className="aspect-[4/3] w-full object-cover" />
+          <img src={preview} alt="" className="aspect-[4/3] w-full object-cover" loading="lazy" />
         </div>
       ) : (
         <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-gold/30 bg-charcoal/30">

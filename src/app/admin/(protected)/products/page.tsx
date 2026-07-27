@@ -80,14 +80,16 @@ export default function AdminProductsPage() {
               key={p.id}
               className="flex items-center gap-3 rounded-xl border border-gold/15 bg-cream/5 p-3"
             >
-              {p.product_image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.product_image_url}
-                  alt=""
-                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                />
-              ) : (
+            {p.product_image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.product_image_url}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="h-14 w-14 shrink-0 rounded-lg object-cover"
+              />
+            ) : (
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-charcoal text-xs text-cream/30">
                   No img
                 </div>

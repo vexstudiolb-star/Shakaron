@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { SalesAssistant } from "@/components/assistant/SalesAssistant";
+import { LazySalesAssistant } from "@/components/assistant/LazySalesAssistant";
 import { HtmlAttributes } from "@/components/layout/HtmlAttributes";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { StorefrontCatalogProvider } from "@/lib/collections/use-storefront-products";
@@ -62,7 +62,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           {children}
         </main>
         <Footer />
-        <SalesAssistant />
+        <LazySalesAssistant />
       </StorefrontCatalogProvider>
     </LocaleProvider>
   );

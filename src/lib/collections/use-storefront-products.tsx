@@ -56,7 +56,7 @@ async function fetchCatalogOnce() {
   if (!sharedPromise) {
     sharedPromise = (async () => {
       try {
-        const res = await fetch("/api/catalog", { cache: "no-store" });
+        const res = await fetch("/api/catalog");
         const body = await res.json();
         return {
           categories: Array.isArray(body.categories) ? body.categories : [],

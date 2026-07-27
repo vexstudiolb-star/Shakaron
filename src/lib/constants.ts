@@ -2,6 +2,7 @@ export const siteConfig = {
   assets: {
     logo: "/logo.png",
     heroVideo: "/hero-video.mp4",
+    heroPoster: "/hero-poster.jpg",
     assistantMascot: "/assistant-mascot.png",
   },
   contact: {
