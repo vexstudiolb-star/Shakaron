@@ -1,50 +1,54 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  COLLECTION_PRODUCTS,
-  type CollectionCategory,
-  type CollectionProduct,
-} from "@/lib/collections/catalog";
 
-export type ClientStorefrontProduct = CollectionProduct & {
+export type ClientStorefrontCategory = {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  heroImageUrl: string | null;
+  sortOrder: number;
+};
+
+export type ClientStorefrontProduct = {
+  id: string;
+  category: string;
+  images: readonly string[];
+  wornImage: string;
   line1En: string;
   line1Ar: string;
   line2En: string;
   line2Ar: string;
   priceEn: string;
   priceAr: string;
-  source: "cms" | "static";
+  source: "cms";
 };
 
-function staticFallback(): ClientStorefrontProduct[] {
-  return COLLECTION_PRODUCTS.map((p) => ({
-    ...p,
-    line1En: "",
-    line1Ar: "",
-    line2En: "",
-    line2Ar: "",
-    priceEn: "",
-    priceAr: "",
-    source: "static" as const,
-  }));
-}
-
-export function useStorefrontProducts() {
-  const [products, setProducts] = useState<ClientStorefrontProduct[]>(staticFallback);
+export function useStorefrontCatalog() {
+  const [categories, setCategories] = useState<ClientStorefrontCategory[]>([]);
+  const [products, setProducts] = useState<ClientStorefrontProduct[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [fromCms, setFromCms] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const res = await fetch("/api/catalog");
+        const res = await fetch("/api/catalog", { cache: "no-store" });
         const body = await res.json();
-        if (!cancelled && Array.isArray(body.products) && body.products.length > 0) {
-          setProducts(body.products as ClientStorefrontProduct[]);
-        }
+        if (cancelled) return;
+        setCategories(Array.isArray(body.categories) ? body.categories : []);
+        setProducts(Array.isArray(body.products) ? body.products : []);
+        setFromCms(Boolean(body.fromCms));
       } catch {
-        // keep static fallback
+        if (!cancelled) {
+          setCategories([]);
+          setProducts([]);
+          setFromCms(false);
+        }
       } finally {
         if (!cancelled) setLoaded(true);
       }
@@ -54,8 +58,8 @@ export function useStorefrontProducts() {
     };
   }, []);
 
-  const forCategory = (category: CollectionCategory) =>
-    products.filter((p) => p.category === category);
+  const forCategory = (categorySlug: string) =>
+    products.filter((p) => p.category === categorySlug);
 
-  return { products, forCategory, loaded };
+  return { categories, products, forCategory, loaded, fromCms };
 }

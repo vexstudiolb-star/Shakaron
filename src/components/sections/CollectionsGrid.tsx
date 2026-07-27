@@ -1,31 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { collectionMeta } from "@/lib/constants";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useStorefrontCatalog } from "@/lib/collections/use-storefront-products";
+import { localeCollectionHref } from "@/lib/constants";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const aspectClasses = {
-  tall: "md:row-span-2",
-  wide: "md:col-span-2",
-  square: "",
-} as const;
+const FALLBACK =
+  "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=1200";
 
-const heightClasses = {
-  tall: "aspect-[3/4] md:aspect-auto md:min-h-[520px]",
-  wide: "aspect-[4/3] md:aspect-auto md:min-h-[360px]",
-  square: "aspect-square md:aspect-auto md:min-h-[400px]",
-};
+const aspectCycle = ["tall", "wide", "square"] as const;
 
 export function CollectionsGrid() {
-  const { dict } = useLocale();
-
-  const items = dict.collections.items.map((item) => {
-    const meta = collectionMeta.find((m) => m.id === item.id)!;
-    return { ...item, ...meta };
-  });
+  const { locale, dict } = useLocale();
+  const { categories, forCategory, loaded } = useStorefrontCatalog();
 
   return (
     <section
@@ -62,6 +53,14 @@ export function CollectionsGrid() {
           </motion.p>
         </motion.div>
 
+        {loaded && categories.length === 0 ? (
+          <p className="text-center text-sm text-charcoal/45">
+            {locale === "ar"
+              ? "أضف فئات من لوحة التحكم لتظهر هنا."
+              : "Add categories in Admin to show them here."}
+          </p>
+        ) : null}
+
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -69,44 +68,56 @@ export function CollectionsGrid() {
           viewport={{ once: true, margin: "-60px" }}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-5"
         >
-          {items.map((item) => (
-            <motion.article
-              key={item.id}
-              variants={fadeUp}
-              className={cn(
-                "group relative cursor-pointer overflow-hidden",
-                aspectClasses[item.aspect]
-              )}
-            >
-              <div
+          {categories.map((category, index) => {
+            const aspect = aspectCycle[index % aspectCycle.length];
+            const products = forCategory(category.slug);
+            const image =
+              category.heroImageUrl || products[0]?.images[0] || FALLBACK;
+            const title = locale === "ar" ? category.nameAr : category.nameEn;
+            const description =
+              locale === "ar" ? category.descriptionAr : category.descriptionEn;
+
+            return (
+              <motion.article
+                key={category.id}
+                variants={fadeUp}
                 className={cn(
-                  "relative h-full w-full overflow-hidden",
-                  heightClasses[item.aspect]
+                  "group relative overflow-hidden",
+                  aspect === "tall" && "md:row-span-2",
+                  aspect === "wide" && "md:col-span-2"
                 )}
               >
-                <Image
-                  src={item.image}
-                  alt={`${item.title} — ${item.category}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-700 group-hover:bg-charcoal/20" />
-              </div>
-
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/80 via-charcoal/30 to-transparent p-6 md:p-8">
-                <p className="mb-1 text-[0.6rem] uppercase tracking-[0.2em] text-gold-light">
-                  {item.category}
-                </p>
-                <h3 className="font-serif text-2xl font-light text-ivory md:text-3xl">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-xs font-light tracking-wide text-cream/60 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                  {item.price}
-                </p>
-              </div>
-            </motion.article>
-          ))}
+                <Link
+                  href={localeCollectionHref(locale, category.slug)}
+                  className={cn(
+                    "relative block overflow-hidden",
+                    aspect === "tall" && "aspect-[3/4] md:aspect-auto md:min-h-[520px]",
+                    aspect === "wide" && "aspect-[4/3] md:aspect-auto md:min-h-[360px]",
+                    aspect === "square" && "aspect-square md:aspect-auto md:min-h-[400px]"
+                  )}
+                >
+                  <Image
+                    src={image}
+                    alt={title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/10 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                    <h3 className="font-serif text-2xl font-light text-ivory md:text-3xl">
+                      {title}
+                    </h3>
+                    {description ? (
+                      <p className="mt-2 max-w-sm text-sm font-light text-cream/70">
+                        {description}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              </motion.article>
+            );
+          })}
         </motion.div>
       </div>
     </section>

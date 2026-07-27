@@ -4,26 +4,38 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale } from "@/contexts/LocaleContext";
-import {
-  CATEGORY_HERO_IMAGES,
-  COLLECTION_CATEGORIES,
-  type CollectionCategory,
-} from "@/lib/collections/catalog";
-import { useStorefrontProducts } from "@/lib/collections/use-storefront-products";
+import { useStorefrontCatalog } from "@/lib/collections/use-storefront-products";
 import { localeProductHref } from "@/lib/constants";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { RevealProductCard } from "./RevealProductCard";
 
+const FALLBACK_HERO =
+  "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=1200";
+
 type CollectionShowcaseProps = {
-  activeCategory: CollectionCategory;
+  activeCategory: string;
 };
 
 export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) {
   const { locale, dict } = useLocale();
   const t = dict.newCollection;
-  const { forCategory } = useStorefrontProducts();
+  const { categories, forCategory, loaded } = useStorefrontCatalog();
   const products = forCategory(activeCategory);
+  const active = categories.find((c) => c.slug === activeCategory);
+  const categoryLabel =
+    active == null
+      ? activeCategory
+      : locale === "ar"
+        ? active.nameAr
+        : active.nameEn;
+  const categoryDescription =
+    active == null
+      ? ""
+      : locale === "ar"
+        ? active.descriptionAr || t.description
+        : active.descriptionEn || t.description;
+  const heroSrc = active?.heroImageUrl || products[0]?.images[0] || FALLBACK_HERO;
 
   return (
     <section className="bg-charcoal px-6 pb-24 pt-28 text-cream md:pb-32 md:pt-36 lg:px-10">
@@ -58,21 +70,21 @@ export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) 
           className="mb-10 flex gap-2 overflow-x-auto pb-2 hide-scrollbar md:mb-14 md:flex-wrap md:gap-3"
           aria-label={t.title}
         >
-          {COLLECTION_CATEGORIES.map((category) => {
-            const active = category === activeCategory;
+          {categories.map((category) => {
+            const isActive = category.slug === activeCategory;
             return (
               <Link
-                key={category}
-                href={`/${locale}/collections/${category}`}
+                key={category.id}
+                href={`/${locale}/collections/${category.slug}`}
                 className={cn(
                   "shrink-0 rounded-full border px-5 py-2.5 text-[0.65rem] font-medium uppercase tracking-[0.18em] transition-all duration-300",
-                  active
+                  isActive
                     ? "border-gold/50 bg-gold/15 text-cream"
                     : "border-cream/10 text-cream/55 hover:border-gold/30 hover:bg-cream/5 hover:text-cream"
                 )}
-                aria-current={active ? "page" : undefined}
+                aria-current={isActive ? "page" : undefined}
               >
-                {t.categories[category]}
+                {locale === "ar" ? category.nameAr : category.nameEn}
               </Link>
             );
           })}
@@ -87,8 +99,8 @@ export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) 
         >
           <div className="relative aspect-[16/10] min-h-[220px] md:aspect-auto md:min-h-[320px]">
             <Image
-              src={CATEGORY_HERO_IMAGES[activeCategory]}
-              alt={t.categories[activeCategory]}
+              src={heroSrc}
+              alt={categoryLabel}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
@@ -98,13 +110,13 @@ export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) 
           </div>
           <div className="px-6 pb-8 md:px-8 md:py-8">
             <p className="mb-2 text-[0.6rem] uppercase tracking-[0.25em] text-gold-muted">
-              {t.categories[activeCategory]}
+              {categoryLabel}
             </p>
             <h2 className="font-serif text-3xl font-light text-ivory md:text-4xl">
-              {t.categories[activeCategory]}
+              {categoryLabel}
             </h2>
             <p className="mt-4 max-w-md text-sm font-light leading-relaxed text-cream/60">
-              {t.categoryDescriptions[activeCategory]}
+              {categoryDescription}
             </p>
           </div>
         </motion.div>
@@ -116,43 +128,28 @@ export function CollectionShowcase({ activeCategory }: CollectionShowcaseProps) 
           animate="visible"
           className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 xl:grid-cols-3"
         >
-          {products.map((product) => {
-            const copy = t.products[product.id as keyof typeof t.products];
-            const line1 =
-              product.source === "cms"
-                ? locale === "ar"
-                  ? product.line1Ar
-                  : product.line1En
-                : copy?.line1 ?? product.line1En;
-            const line2 =
-              product.source === "cms"
-                ? locale === "ar"
-                  ? product.line2Ar
-                  : product.line2En
-                : copy?.line2 ?? product.line2En;
-            const price =
-              product.source === "cms"
-                ? locale === "ar"
-                  ? product.priceAr
-                  : product.priceEn
-                : t.priceOnRequest;
-
-            return (
-              <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[340px]">
-                <RevealProductCard
-                  line1={line1}
-                  line2={line2}
-                  price={price}
-                  productImage={product.images[0]}
-                  wornImage={product.wornImage}
-                  productLabel={t.viewProduct}
-                  wornLabel={t.viewWorn}
-                  inquireLabel={t.inquire}
-                  href={localeProductHref(locale, product.category, product.id)}
-                />
-              </motion.div>
-            );
-          })}
+          {loaded && products.length === 0 ? (
+            <p className="col-span-full py-10 text-center text-sm text-cream/45">
+              {locale === "ar"
+                ? "لا منتجات في هذه الفئة بعد — أضفها من لوحة التحكم."
+                : "No products in this category yet — add them in Admin."}
+            </p>
+          ) : null}
+          {products.map((product) => (
+            <motion.div key={product.id} variants={fadeUp} className="w-full max-w-[340px]">
+              <RevealProductCard
+                line1={locale === "ar" ? product.line1Ar : product.line1En}
+                line2={locale === "ar" ? product.line2Ar : product.line2En}
+                price={locale === "ar" ? product.priceAr : product.priceEn}
+                productImage={product.images[0]}
+                wornImage={product.wornImage}
+                productLabel={t.viewProduct}
+                wornLabel={t.viewWorn}
+                inquireLabel={t.inquire}
+                href={localeProductHref(locale, product.category, product.id)}
+              />
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>

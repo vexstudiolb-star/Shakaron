@@ -1,20 +1,41 @@
 import { createClient } from "@supabase/supabase-js";
-import {
-  COLLECTION_PRODUCTS,
-  isCollectionCategory,
-  type CollectionCategory,
-  type CollectionProduct,
-} from "@/lib/collections/catalog";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 
-export type StorefrontProduct = CollectionProduct & {
+export type StorefrontCategory = {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  heroImageUrl: string | null;
+  sortOrder: number;
+};
+
+export type StorefrontProduct = {
+  id: string;
+  category: string;
+  images: readonly string[];
+  wornImage: string;
   line1En: string;
   line1Ar: string;
   line2En: string;
   line2Ar: string;
   priceEn: string;
   priceAr: string;
-  source: "cms" | "static";
+  source: "cms";
+};
+
+type CmsCategoryRow = {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_ar: string;
+  description_en: string | null;
+  description_ar: string | null;
+  hero_image_url: string | null;
+  sort_order: number;
+  is_active: boolean;
 };
 
 type CmsProductRow = {
@@ -48,37 +69,62 @@ function createPublicCatalogClient() {
   });
 }
 
-/** Active CMS products with R2 image URLs. Falls back to static catalog when empty/unavailable. */
-export async function getStorefrontProducts(): Promise<StorefrontProduct[]> {
+export async function getStorefrontCatalog(): Promise<{
+  categories: StorefrontCategory[];
+  products: StorefrontProduct[];
+  fromCms: boolean;
+}> {
   if (!isSupabaseConfigured()) {
-    return staticAsStorefront();
+    return { categories: [], products: [], fromCms: false };
+  }
+
+  const supabase = createPublicCatalogClient();
+  if (!supabase) {
+    return { categories: [], products: [], fromCms: false };
   }
 
   try {
-    const supabase = createPublicCatalogClient();
-    if (!supabase) return staticAsStorefront();
+    const [catRes, prodRes] = await Promise.all([
+      supabase
+        .from("collection_categories")
+        .select(
+          "id, slug, name_en, name_ar, description_en, description_ar, hero_image_url, sort_order, is_active"
+        )
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("products")
+        .select(
+          "slug, brand_line_en, brand_line_ar, name_en, name_ar, price_label_en, price_label_ar, product_image_url, worn_image_url, is_active, collection_categories(slug)"
+        )
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+    ]);
 
-    const { data, error } = await supabase
-      .from("products")
-      .select(
-        "slug, brand_line_en, brand_line_ar, name_en, name_ar, price_label_en, price_label_ar, product_image_url, worn_image_url, is_active, collection_categories(slug)"
-      )
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+    const categories: StorefrontCategory[] = (catRes.data as CmsCategoryRow[] | null)?.map(
+      (c) => ({
+        id: c.id,
+        slug: c.slug,
+        nameEn: c.name_en,
+        nameAr: c.name_ar,
+        descriptionEn: c.description_en ?? "",
+        descriptionAr: c.description_ar ?? "",
+        heroImageUrl: c.hero_image_url,
+        sortOrder: c.sort_order,
+      })
+    ) ?? [];
 
-    if (error || !data?.length) {
-      return staticAsStorefront();
-    }
-
-    const cmsProducts: StorefrontProduct[] = [];
-    for (const row of data as CmsProductRow[]) {
+    const products: StorefrontProduct[] = [];
+    for (const row of (prodRes.data as CmsProductRow[] | null) ?? []) {
       const category = categorySlugFromJoin(row.collection_categories);
-      if (!category || !isCollectionCategory(category)) continue;
-      const productImage = row.product_image_url?.trim();
+      if (!category) continue;
+
+      // Prefer product image; fall back to worn so cards still render
+      const productImage = row.product_image_url?.trim() || row.worn_image_url?.trim();
       if (!productImage) continue;
       const worn = row.worn_image_url?.trim() || productImage;
 
-      cmsProducts.push({
+      products.push({
         id: row.slug,
         category,
         images: [productImage],
@@ -93,28 +139,14 @@ export async function getStorefrontProducts(): Promise<StorefrontProduct[]> {
       });
     }
 
-    return cmsProducts.length > 0 ? cmsProducts : staticAsStorefront();
+    return { categories, products, fromCms: true };
   } catch {
-    return staticAsStorefront();
+    return { categories: [], products: [], fromCms: false };
   }
 }
 
-export function productsForCategoryFromList(
-  products: StorefrontProduct[],
-  category: CollectionCategory
-) {
-  return products.filter((p) => p.category === category);
-}
-
-function staticAsStorefront(): StorefrontProduct[] {
-  return COLLECTION_PRODUCTS.map((p) => ({
-    ...p,
-    line1En: "Shakaron",
-    line1Ar: "شاكارون",
-    line2En: p.id,
-    line2Ar: p.id,
-    priceEn: "Price on request",
-    priceAr: "السعر عند الطلب",
-    source: "static" as const,
-  }));
+/** @deprecated use getStorefrontCatalog */
+export async function getStorefrontProducts() {
+  const { products } = await getStorefrontCatalog();
+  return products;
 }
