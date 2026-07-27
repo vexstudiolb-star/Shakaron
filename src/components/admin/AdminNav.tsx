@@ -113,6 +113,13 @@ export function AdminNav() {
         <nav className="flex flex-col gap-1">
           <NavLinks />
         </nav>
+        <Link
+          href="/en"
+          target="_blank"
+          className="mt-6 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-gold/80 hover:bg-gold/10 hover:text-gold"
+        >
+          Open website ↗
+        </Link>
       </aside>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex justify-around border-t border-gold/15 bg-charcoal/95 px-2 py-2 backdrop-blur md:hidden">

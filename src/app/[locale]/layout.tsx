@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SalesAssistant } from "@/components/assistant/SalesAssistant";
 import { HtmlAttributes } from "@/components/layout/HtmlAttributes";
 import { LocaleProvider } from "@/contexts/LocaleContext";
+import { StorefrontCatalogProvider } from "@/lib/collections/use-storefront-products";
 import { getDirection, isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 
@@ -46,14 +47,16 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <LocaleProvider locale={locale} dict={dict} dir={dir}>
-      <HtmlAttributes locale={locale} dir={dir} />
-      <a href="#main-content" className="skip-link">
-        {dict.common.skipToContent}
-      </a>
-      <Navbar />
-      <main id="main-content">{children}</main>
-      <Footer />
-      <SalesAssistant />
+      <StorefrontCatalogProvider>
+        <HtmlAttributes locale={locale} dir={dir} />
+        <a href="#main-content" className="skip-link">
+          {dict.common.skipToContent}
+        </a>
+        <Navbar />
+        <main id="main-content">{children}</main>
+        <Footer />
+        <SalesAssistant />
+      </StorefrontCatalogProvider>
     </LocaleProvider>
   );
 }

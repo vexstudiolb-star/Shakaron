@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createServerSupabaseClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
@@ -15,7 +16,8 @@ export function isAdminUser(user: User | null): boolean {
   return allowed.includes(user.email.toLowerCase());
 }
 
-export async function getAdminSession() {
+/** Deduped per request — layout + APIs share one getUser call when in the same RSC tree */
+export const getAdminSession = cache(async () => {
   if (!isSupabaseConfigured()) {
     return { supabase: null, user: null as User | null, isAdmin: false };
   }
@@ -25,4 +27,4 @@ export async function getAdminSession() {
     data: { user },
   } = await supabase.auth.getUser();
   return { supabase, user, isAdmin: isAdminUser(user) };
-}
+});

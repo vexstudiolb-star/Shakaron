@@ -60,19 +60,27 @@ export function ImageUploader({
       setUploading(true);
 
       try {
-        const compressed = await imageCompression(file, {
-          maxSizeMB: 1.2,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-          fileType: "image/webp",
-        });
+        // Skip heavy compression for already-small images (much faster admin uploads)
+        const needsCompression = file.size > 400_000 || !file.type.includes("webp");
+        const prepared = needsCompression
+          ? await imageCompression(file, {
+              maxSizeMB: 1.2,
+              maxWidthOrHeight: 1600,
+              useWebWorker: true,
+              fileType: "image/webp",
+            }).then((c) => (c.size < file.size ? c : file))
+          : file;
 
-        const prepared = compressed.size < file.size ? compressed : file;
-        const mimeType = prepared.type || "image/webp";
+        const mimeType = prepared.type || file.type || "image/webp";
         const dims = await getImageDimensions(prepared).catch(() => undefined);
 
         const body = new FormData();
-        const blobName = prepared.name?.replace(/\.[^.]+$/, ".webp") || "image.webp";
+        const ext = mimeType.includes("png")
+          ? "png"
+          : mimeType.includes("jpeg") || mimeType.includes("jpg")
+            ? "jpg"
+            : "webp";
+        const blobName = `${(prepared.name || file.name || "image").replace(/\.[^.]+$/, "")}.${ext}`;
         body.append("file", prepared, blobName);
         body.append("folder", folder);
 

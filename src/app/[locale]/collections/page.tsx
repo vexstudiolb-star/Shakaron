@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getStorefrontCatalog } from "@/lib/collections/cms-catalog";
 import { isLocale, locales } from "@/i18n/config";
 
 type Props = {
@@ -11,6 +12,9 @@ export function generateStaticParams() {
 
 export default async function CollectionsIndexPage({ params }: Props) {
   const { locale } = await params;
-  if (!isLocale(locale)) redirect("/en/collections/rings");
-  redirect(`/${locale}/collections/rings`);
+  if (!isLocale(locale)) redirect("/en/collections");
+
+  const { categories } = await getStorefrontCatalog();
+  const first = categories[0]?.slug ?? "rings";
+  redirect(`/${locale}/collections/${first}`);
 }

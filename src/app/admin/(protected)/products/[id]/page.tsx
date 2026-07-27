@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Trash2 } from "lucide-react";
+import { ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import type { CollectionCategoryRow, ProductRow } from "@/lib/admin/types";
 
@@ -52,31 +53,32 @@ export default function ProductFormPage({ params }: Props) {
     if (!id) return;
     setLoading(true);
 
-    const catRes = await fetch("/api/admin/categories");
-    const catBody = await catRes.json();
+    const catPromise = fetch("/api/admin/categories").then((r) => r.json());
+    const productPromise =
+      id !== "new"
+        ? fetch(`/api/admin/products/${id}`).then((r) => r.json())
+        : Promise.resolve(null);
+
+    const [catBody, productBody] = await Promise.all([catPromise, productPromise]);
     setCategories(catBody.categories ?? []);
 
-    if (id !== "new") {
-      const res = await fetch(`/api/admin/products/${id}`);
-      const body = await res.json();
-      if (res.ok && body.product) {
-        const p = body.product as ProductRow;
-        setForm({
-          slug: p.slug,
-          category_id: p.category_id,
-          brand_line_en: p.brand_line_en,
-          brand_line_ar: p.brand_line_ar,
-          name_en: p.name_en,
-          name_ar: p.name_ar,
-          price_label_en: p.price_label_en,
-          price_label_ar: p.price_label_ar,
-          product_image_url: p.product_image_url ?? "",
-          worn_image_url: p.worn_image_url ?? "",
-          tags: (p.tags ?? []).join(", "),
-          sort_order: p.sort_order,
-          is_active: p.is_active,
-        });
-      }
+    if (productBody?.product) {
+      const p = productBody.product as ProductRow;
+      setForm({
+        slug: p.slug,
+        category_id: p.category_id,
+        brand_line_en: p.brand_line_en,
+        brand_line_ar: p.brand_line_ar,
+        name_en: p.name_en,
+        name_ar: p.name_ar,
+        price_label_en: p.price_label_en,
+        price_label_ar: p.price_label_ar,
+        product_image_url: p.product_image_url ?? "",
+        worn_image_url: p.worn_image_url ?? "",
+        tags: (p.tags ?? []).join(", "),
+        sort_order: p.sort_order,
+        is_active: p.is_active,
+      });
     }
 
     setLoading(false);
@@ -96,10 +98,28 @@ export default function ProductFormPage({ params }: Props) {
     });
   };
 
+  const categorySlug = categories.find((c) => c.id === form.category_id)?.slug;
+  const storefrontHref =
+    !isNew && form.is_active && categorySlug && form.slug
+      ? `/en/collections/${categorySlug}/${form.slug}`
+      : null;
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
+
+    if (!form.product_image_url && !form.worn_image_url) {
+      setError("Add at least one product image so it can appear on the website.");
+      setSaving(false);
+      return;
+    }
+
+    if (!form.category_id) {
+      setError("Select a category.");
+      setSaving(false);
+      return;
+    }
 
     const payload = {
       ...form,
@@ -131,9 +151,11 @@ export default function ProductFormPage({ params }: Props) {
 
     if (isNew && body.product?.id) {
       router.replace(`/admin/products/${body.product.id}`);
-    } else {
-      router.push("/admin/products");
+      router.refresh();
+      return;
     }
+
+    router.push("/admin/products");
     router.refresh();
   };
 
@@ -157,7 +179,19 @@ export default function ProductFormPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="font-serif text-2xl text-gold">{isNew ? "New product" : "Edit product"}</h1>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h1 className="font-serif text-2xl text-gold">{isNew ? "New product" : "Edit product"}</h1>
+        {storefrontHref ? (
+          <Link
+            href={storefrontHref}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gold/30 px-3 py-2 text-xs uppercase tracking-wider text-gold hover:bg-gold/10"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            View on website
+          </Link>
+        ) : null}
+      </div>
 
       <form onSubmit={save} className="mt-6 space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -201,6 +235,7 @@ export default function ProductFormPage({ params }: Props) {
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name_en}
+                  {!c.is_active ? " (hidden)" : ""}
                 </option>
               ))}
             </select>

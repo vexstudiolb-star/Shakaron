@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Pencil } from "lucide-react";
+import { ExternalLink, Loader2, Plus, Pencil } from "lucide-react";
 import type { ProductRow } from "@/lib/admin/types";
 
 type ProductWithCategory = ProductRow & {
@@ -32,12 +32,12 @@ export default function AdminProductsPage() {
   }, [load]);
 
   const toggleActive = async (id: string, is_active: boolean) => {
+    setProducts((list) => list.map((p) => (p.id === id ? { ...p, is_active } : p)));
     await fetch(`/api/admin/products/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active }),
     });
-    void load();
   };
 
   if (loading) {
@@ -67,46 +67,62 @@ export default function AdminProductsPage() {
       {error ? <p className="mt-4 text-red-400">{error}</p> : null}
 
       <ul className="mt-6 space-y-3">
-        {products.map((p) => (
-          <li
-            key={p.id}
-            className="flex items-center gap-3 rounded-xl border border-gold/15 bg-cream/5 p-3"
-          >
-            {p.product_image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={p.product_image_url}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-charcoal text-xs text-cream/30">
-                No img
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-cream">{p.name_en}</p>
-              <p className="truncate text-xs text-cream/50">
-                {p.collection_categories?.name_en ?? "—"} · {p.slug}
-              </p>
-            </div>
-            <label className="flex shrink-0 items-center gap-2 text-xs text-cream/60">
-              <input
-                type="checkbox"
-                checked={p.is_active}
-                onChange={(e) => void toggleActive(p.id, e.target.checked)}
-                className="accent-gold"
-              />
-              Live
-            </label>
-            <Link
-              href={`/admin/products/${p.id}`}
-              className="shrink-0 rounded-lg p-2 text-cream/60 hover:bg-gold/10 hover:text-gold"
+        {products.map((p) => {
+          const catSlug = p.collection_categories?.slug;
+          const liveHref =
+            p.is_active && catSlug ? `/en/collections/${catSlug}/${p.slug}` : null;
+
+          return (
+            <li
+              key={p.id}
+              className="flex items-center gap-3 rounded-xl border border-gold/15 bg-cream/5 p-3"
             >
-              <Pencil className="h-4 w-4" />
-            </Link>
-          </li>
-        ))}
+              {p.product_image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={p.product_image_url}
+                  alt=""
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-charcoal text-xs text-cream/30">
+                  No img
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-cream">{p.name_en}</p>
+                <p className="truncate text-xs text-cream/50">
+                  {p.collection_categories?.name_en ?? "—"} · {p.slug}
+                </p>
+              </div>
+              <label className="flex shrink-0 items-center gap-2 text-xs text-cream/60">
+                <input
+                  type="checkbox"
+                  checked={p.is_active}
+                  onChange={(e) => void toggleActive(p.id, e.target.checked)}
+                  className="accent-gold"
+                />
+                Live
+              </label>
+              {liveHref ? (
+                <Link
+                  href={liveHref}
+                  target="_blank"
+                  className="shrink-0 rounded-lg p-2 text-cream/60 hover:bg-gold/10 hover:text-gold"
+                  title="View on website"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              ) : null}
+              <Link
+                href={`/admin/products/${p.id}`}
+                className="shrink-0 rounded-lg p-2 text-cream/60 hover:bg-gold/10 hover:text-gold"
+              >
+                <Pencil className="h-4 w-4" />
+              </Link>
+            </li>
+          );
+        })}
       </ul>
 
       {products.length === 0 && !error ? (

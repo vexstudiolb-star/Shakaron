@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gem, FolderOpen, LayoutGrid, ImageIcon } from "lucide-react";
+import { ExternalLink, Gem, FolderOpen, LayoutGrid, ImageIcon } from "lucide-react";
 
 const cards = [
   {
@@ -31,10 +31,22 @@ const cards = [
 export default function AdminDashboardPage() {
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="font-serif text-2xl text-gold md:text-3xl">Dashboard</h1>
-      <p className="mt-2 text-sm text-cream/60">
-        Manage your storefront content. Uploads go to Cloudflare R2; data lives in Supabase.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl text-gold md:text-3xl">Dashboard</h1>
+          <p className="mt-2 text-sm text-cream/60">
+            Manage storefront content. Active products appear on the live website.
+          </p>
+        </div>
+        <Link
+          href="/en"
+          target="_blank"
+          className="inline-flex items-center gap-2 rounded-lg border border-gold/30 px-4 py-2.5 text-sm text-gold hover:bg-gold/10"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Open website
+        </Link>
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {cards.map(({ href, title, desc, icon: Icon }) => (
