@@ -46,14 +46,21 @@ export default async function LocaleLayout({ children, params }: Props) {
   const dir = getDirection(locale);
 
   return (
-    <LocaleProvider locale={locale} dict={dict} dir={dir}>
+    <LocaleProvider key={locale} locale={locale} dict={dict} dir={dir}>
       <StorefrontCatalogProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.lang=${JSON.stringify(locale)};document.documentElement.dir=${JSON.stringify(dir)};`,
+          }}
+        />
         <HtmlAttributes locale={locale} dir={dir} />
         <a href="#main-content" className="skip-link">
           {dict.common.skipToContent}
         </a>
         <Navbar />
-        <main id="main-content">{children}</main>
+        <main id="main-content" lang={locale} dir={dir}>
+          {children}
+        </main>
         <Footer />
         <SalesAssistant />
       </StorefrontCatalogProvider>

@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/contexts/LocaleContext";
 import { locales, type Locale } from "@/i18n/config";
+import { buildLocaleCookie } from "@/i18n/locale-preference";
 import { cn } from "@/lib/utils";
 
 type LanguageSwitcherProps = {
@@ -19,9 +19,22 @@ export function LanguageSwitcher({ className, fixed = false }: LanguageSwitcherP
     const segments = pathname.split("/");
     if (segments.length > 1 && locales.includes(segments[1] as Locale)) {
       segments[1] = target;
-      return segments.join("/") || `/${target}`;
+      const next = segments.join("/") || `/${target}`;
+      return next;
     }
     return `/${target}`;
+  }
+
+  function switchLocale(target: Locale) {
+    if (target === locale) return;
+
+    // Persist choice so middleware / Accept-Language can't force Arabic again
+    document.cookie = buildLocaleCookie(target);
+
+    const nextPath = getLocalizedPath(target);
+
+    // Full navigation guarantees html dir/lang + dictionaries remount correctly
+    window.location.assign(nextPath);
   }
 
   return (
@@ -37,9 +50,10 @@ export function LanguageSwitcher({ className, fixed = false }: LanguageSwitcherP
       {locales.map((code) => {
         const isActive = locale === code;
         return (
-          <Link
+          <button
             key={code}
-            href={getLocalizedPath(code)}
+            type="button"
+            onClick={() => switchLocale(code)}
             className={cn(
               "min-w-[2.75rem] rounded-full px-3 py-2 text-center text-[0.65rem] font-medium uppercase tracking-wider transition-all duration-300",
               isActive
@@ -47,12 +61,10 @@ export function LanguageSwitcher({ className, fixed = false }: LanguageSwitcherP
                 : "text-cream/60 hover:bg-gold/15 hover:text-cream"
             )}
             aria-current={isActive ? "true" : undefined}
-            aria-label={
-              code === "en" ? dict.common.switchToEn : dict.common.switchToAr
-            }
+            aria-label={code === "en" ? dict.common.switchToEn : dict.common.switchToAr}
           >
             {dict.language[code]}
-          </Link>
+          </button>
         );
       })}
     </div>

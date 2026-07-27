@@ -1,12 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { defaultLocale, locales } from "@/i18n/config";
-
-function getPreferredLocale(request: NextRequest) {
-  const acceptLanguage = request.headers.get("accept-language") ?? "";
-  if (acceptLanguage.includes("ar")) return "ar";
-  return defaultLocale;
-}
+import { locales } from "@/i18n/config";
+import { LOCALE_COOKIE, resolvePreferredLocale } from "@/i18n/locale-preference";
 
 function getHostname(request: NextRequest) {
   const raw =
@@ -63,8 +58,6 @@ export async function middleware(request: NextRequest) {
   const hostname = getHostname(request);
 
   // ── Admin subdomain (admin.shakaronjewellery.com) ─────────────────────
-  // Visiting / was previously locale-redirected to /en (storefront).
-  // Instead, rewrite into /admin/* and never apply locale redirects.
   if (isAdminHostname(hostname)) {
     let adminPath = pathname;
 
@@ -110,13 +103,32 @@ export async function middleware(request: NextRequest) {
   );
 
   if (pathnameHasLocale) {
-    return NextResponse.next();
+    const currentLocale = pathname.split("/")[1];
+    const response = NextResponse.next();
+    if (currentLocale === "en" || currentLocale === "ar") {
+      response.cookies.set(LOCALE_COOKIE, currentLocale, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
+    }
+    return response;
   }
 
-  const locale = getPreferredLocale(request);
+  const locale = resolvePreferredLocale(
+    request.headers.get("cookie"),
+    request.headers.get("accept-language")
+  );
   const url = request.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(url);
+
+  const redirect = NextResponse.redirect(url);
+  redirect.cookies.set(LOCALE_COOKIE, locale, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+  return redirect;
 }
 
 export const config = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import type { Locale } from "@/i18n/config";
 
 export function HtmlAttributes({
@@ -10,9 +10,13 @@ export function HtmlAttributes({
   locale: Locale;
   dir: "ltr" | "rtl";
 }) {
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    document.documentElement.dir = dir;
+  // useLayoutEffect runs before paint so EN never flashes as RTL after switching
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.lang = locale;
+    root.dir = dir;
+    root.setAttribute("dir", dir);
+    root.setAttribute("lang", locale);
     document.body.classList.add("motion-ready");
   }, [locale, dir]);
 
