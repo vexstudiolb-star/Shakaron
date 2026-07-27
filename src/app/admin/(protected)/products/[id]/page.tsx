@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import type { CollectionCategoryRow, ProductRow } from "@/lib/admin/types";
+import { publicSiteHref } from "@/lib/constants";
 
 function slugify(value: string) {
   return value
@@ -101,7 +102,7 @@ export default function ProductFormPage({ params }: Props) {
   const categorySlug = categories.find((c) => c.id === form.category_id)?.slug;
   const storefrontHref =
     !isNew && form.is_active && categorySlug && form.slug
-      ? `/en/collections/${categorySlug}/${form.slug}`
+      ? publicSiteHref(`/en/collections/${categorySlug}/${form.slug}`)
       : null;
 
   const save = async (e: React.FormEvent) => {

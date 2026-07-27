@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink, Loader2, Plus, Pencil } from "lucide-react";
 import type { ProductRow } from "@/lib/admin/types";
+import { publicSiteHref } from "@/lib/constants";
 
 type ProductWithCategory = ProductRow & {
   collection_categories?: { slug: string; name_en: string } | null;
@@ -70,7 +71,9 @@ export default function AdminProductsPage() {
         {products.map((p) => {
           const catSlug = p.collection_categories?.slug;
           const liveHref =
-            p.is_active && catSlug ? `/en/collections/${catSlug}/${p.slug}` : null;
+            p.is_active && catSlug
+              ? publicSiteHref(`/en/collections/${catSlug}/${p.slug}`)
+              : null;
 
           return (
             <li

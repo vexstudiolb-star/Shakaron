@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { publicSiteHref } from "@/lib/constants";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: Home, exact: true },
@@ -114,8 +115,9 @@ export function AdminNav() {
           <NavLinks />
         </nav>
         <Link
-          href="/en"
+          href={publicSiteHref("/en")}
           target="_blank"
+          rel="noopener noreferrer"
           className="mt-6 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-gold/80 hover:bg-gold/10 hover:text-gold"
         >
           Open website ↗

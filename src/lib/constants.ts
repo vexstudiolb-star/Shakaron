@@ -37,6 +37,19 @@ export function localeProductHref(locale: string, category: string, productId: s
   return `/${locale}/collections/${category}/${productId}`;
 }
 
+/** Public storefront origin (not the admin subdomain). */
+export function getPublicSiteUrl() {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+  return "https://shakaronjewellery.com";
+}
+
+/** Absolute storefront URL — use from admin subdomain so links leave admin.*. */
+export function publicSiteHref(path = "/en") {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${getPublicSiteUrl()}${normalized}`;
+}
+
 const img = {
   ring: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80",
   gems: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80",
