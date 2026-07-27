@@ -3,6 +3,30 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { isAdminUser } from "@/lib/admin/auth";
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Record<string, unknown>;
+};
+
+function applyCookies(response: NextResponse, list: CookieToSet[]) {
+  for (const { name, value, options } of list) {
+    const opts = options ?? {};
+    response.cookies.set(name, value, {
+      path: typeof opts.path === "string" ? opts.path : "/",
+      domain: typeof opts.domain === "string" ? opts.domain : undefined,
+      maxAge: typeof opts.maxAge === "number" ? opts.maxAge : undefined,
+      expires: opts.expires instanceof Date ? opts.expires : undefined,
+      httpOnly: opts.httpOnly !== false,
+      secure: process.env.NODE_ENV === "production" ? true : Boolean(opts.secure),
+      sameSite:
+        opts.sameSite === "none" || opts.sameSite === "strict" || opts.sameSite === "lax"
+          ? opts.sameSite
+          : "lax",
+    });
+  }
+}
+
 export async function POST(request: Request) {
   const { email, password } = (await request.json()) as {
     email?: string;
@@ -23,8 +47,7 @@ export async function POST(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] =
-    [];
+  const pendingCookies: CookieToSet[] = [];
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -33,18 +56,21 @@ export async function POST(request: Request) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          pendingCookies.push({ name, value, options: options ?? {} });
+          pendingCookies.push({ name, value, options: options as Record<string, unknown> });
           try {
             cookieStore.set(name, value, options);
           } catch {
-            // Ignore if called outside a mutable cookie context
+            // Route handler will also set cookies on the response below
           }
         });
       },
     },
   });
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 401 });
@@ -63,10 +89,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = NextResponse.json({ user: { email: data.user.email }, ok: true });
-  pendingCookies.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options);
+  const response = NextResponse.json({
+    ok: true,
+    user: { email: data.user?.email ?? null },
+    redirectTo: "/admin",
   });
+  applyCookies(response, pendingCookies);
   return response;
 }
 
@@ -78,8 +106,7 @@ export async function DELETE() {
   }
 
   const cookieStore = await cookies();
-  const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] =
-    [];
+  const pendingCookies: CookieToSet[] = [];
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -88,7 +115,7 @@ export async function DELETE() {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          pendingCookies.push({ name, value, options: options ?? {} });
+          pendingCookies.push({ name, value, options: options as Record<string, unknown> });
           try {
             cookieStore.set(name, value, options);
           } catch {
@@ -101,9 +128,7 @@ export async function DELETE() {
 
   await supabase.auth.signOut();
 
-  const response = NextResponse.json({ ok: true });
-  pendingCookies.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options);
-  });
+  const response = NextResponse.json({ ok: true, redirectTo: "/admin/login" });
+  applyCookies(response, pendingCookies);
   return response;
 }

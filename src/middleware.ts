@@ -10,7 +10,17 @@ function getPreferredLocale(request: NextRequest) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isAdmin = pathname.startsWith("/admin");
+
+  // /en/admin or /ar/admin → /admin (locale must not wrap admin)
+  for (const locale of locales) {
+    if (pathname === `/${locale}/admin` || pathname.startsWith(`/${locale}/admin/`)) {
+      const url = request.nextUrl.clone();
+      url.pathname = pathname.replace(`/${locale}`, "") || "/admin";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
 
   let response = NextResponse.next({
     request: {
@@ -18,7 +28,6 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Only refresh auth on admin routes — keeps the public site fast
   if (isAdmin) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -39,7 +48,11 @@ export async function middleware(request: NextRequest) {
               },
             });
             cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options);
+              response.cookies.set(name, value, {
+                ...options,
+                path: options?.path ?? "/",
+                sameSite: options?.sameSite ?? "lax",
+              });
             });
           },
         },

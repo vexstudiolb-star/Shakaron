@@ -20,7 +20,8 @@ export function AdminLoginForm({ needsSetup = false, allowlistConfigured = true 
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const body = await res.json().catch(() => ({}));
@@ -30,8 +31,21 @@ export function AdminLoginForm({ needsSetup = false, allowlistConfigured = true 
         return;
       }
 
-      // Full navigation so auth cookies are applied before the protected layout runs
-      window.location.assign("/admin");
+      const sessionRes = await fetch("/api/admin/auth/session", {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+      const session = await sessionRes.json().catch(() => ({}));
+
+      if (!session?.isAdmin) {
+        setError(
+          "Signed in, but admin session cookie was not saved. Check ADMIN_ALLOWED_EMAILS and Supabase keys on Vercel, then try again."
+        );
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = "/admin";
     } catch {
       setError("Could not connect. Check your Supabase keys in .env.local / Vercel.");
       setLoading(false);
@@ -96,7 +110,9 @@ export function AdminLoginForm({ needsSetup = false, allowlistConfigured = true 
               Add Supabase keys to env, then create a user in Supabase Auth.
             </span>
           ) : (
-            <>Use the same email you added to ADMIN_ALLOWED_EMAILS.</>
+            <>
+              Open <code className="text-cream/50">/admin</code> — use the email in ADMIN_ALLOWED_EMAILS.
+            </>
           )}
         </p>
       </div>
